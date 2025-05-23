@@ -1,0 +1,21 @@
+/* App.css */
+#root {
+  max-width: 100%;
+  padding: 1rem;
+}
+
+.card {
+  background-color: #1e1e1e;
+  color: white;
+  border: none;
+  height: 100%;
+}
+
+.card-img-top {
+  height: 300px;
+  object-fit: cover;
+}
+
+.read-the-docs {
+  color: #888;
+}
