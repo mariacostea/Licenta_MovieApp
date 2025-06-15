@@ -16,7 +16,6 @@ public sealed class MovieProjectionSpec : Specification<Movie, MovieDetailsDTO>
         int page = 1,
         int pageSize = 40)
     {
-        /* Filtrare */
         if (year.HasValue)
         {
             Query.Where(m => m.Year == year.Value);
@@ -27,8 +26,7 @@ public sealed class MovieProjectionSpec : Specification<Movie, MovieDetailsDTO>
             Query.Where(m => m.MovieGenres.Any(g =>
                 g.Genre.Name.ToLower() == genre.ToLower()));
         }
-
-        /* Proiecţie */
+        
         Query.Select(m => new MovieDetailsDTO
         {
             Id = m.Id,
@@ -39,8 +37,7 @@ public sealed class MovieProjectionSpec : Specification<Movie, MovieDetailsDTO>
             PosterUrl = m.PosterUrl,
             Genres = m.MovieGenres.Select(g => g.Genre.Name).ToList()
         });
-
-        /* Paginare */
+        
         Query.Skip((page - 1) * pageSize)
             .Take(pageSize);
     }

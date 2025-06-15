@@ -26,10 +26,7 @@ public class TmdbSeederService : ITmdbSeederService
     public async Task SeedGenresAndMoviesAsync()
     {
         using var client = new HttpClient();
-
-        // ===================
-        // 1. Seed GENRES
-        // ===================
+        
         var genreUrl = $"{_baseUrl}/genre/movie/list?api_key={_apiKey}";
         var genreRes = await client.GetAsync(genreUrl);
         genreRes.EnsureSuccessStatusCode();
@@ -53,10 +50,7 @@ public class TmdbSeederService : ITmdbSeederService
                 });
             }
         }
-
-        // ===================
-        // 2. Seed MOVIES
-        // ===================
+        
         for (int page = 1; page <= 2; page++)
         {
             var movieUrl = $"{_baseUrl}/movie/popular?api_key={_apiKey}&page={page}";

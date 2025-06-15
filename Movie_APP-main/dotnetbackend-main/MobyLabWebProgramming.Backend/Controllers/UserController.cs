@@ -6,7 +6,11 @@ using MobyLabWebProgramming.Core.Requests;
 using MobyLabWebProgramming.Core.Responses;
 using MobyLabWebProgramming.Core.Errors;
 using MobyLabWebProgramming.Infrastructure.Authorization;
+using MobyLabWebProgramming.Infrastructure.Database;
 using MobyLabWebProgramming.Infrastructure.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using MobyLabWebProgramming.Core.Entities;
+
 
 namespace MobyLabWebProgramming.Backend.Controllers;
 
@@ -16,8 +20,14 @@ namespace MobyLabWebProgramming.Backend.Controllers;
 /// </summary>
 [ApiController] // This attribute specifies for the framework to add functionality to the controller such as binding multipart/form-data.
 [Route("api/[controller]/[action]")] // The Route attribute prefixes the routes/url paths with template provides as a string, the keywords between [] are used to automatically take the controller and method name.
-public class UserController(IUserService userService) : AuthorizedController(userService) // Here we use the AuthorizedController as the base class because it derives ControllerBase and also has useful methods to retrieve user information.
-{                                                                                         // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
+public class UserController : AuthorizedController
+{
+    private readonly WebAppDatabaseContext _db;
+
+    public UserController(IUserService userService, WebAppDatabaseContext db) : base(userService)
+    {
+        _db = db;
+    }                                                                                     // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
     /// <summary>
     /// This method implements the Read operation (R from CRUD) on a user. 
     /// </summary>
@@ -128,7 +138,45 @@ public class UserController(IUserService userService) : AuthorizedController(use
             : ErrorMessageResult<List<UserDTO>>(currentUser.Error);
     }
 
+    [HttpGet("available/{currentUserId:guid}")]
+    [Authorize]
+    public async Task<ActionResult<RequestResponse<List<UserDTO>>>> GetAvailableUsers([FromRoute] Guid currentUserId)
+    {
+        var result = await UserService.GetAvailableUsers(currentUserId, HttpContext.RequestAborted);
+
+        return result.Error != null
+            ? ErrorMessageResult<List<UserDTO>>(result.Error)
+            : FromServiceResponse(result);
+    }
     
+    [Authorize]
+    [HttpGet("friends/{userId}")]
+    public async Task<IActionResult> GetFriends([FromRoute] Guid userId)
+    {
+        var currentUser = await GetCurrentUser();
 
+        if (currentUser.Result == null || currentUser.Result.Id != userId)
+        {
+            return Forbid("Nu ai voie să accesezi lista altui utilizator.");
+        }
 
+        var friendships = await _db.Friendships
+            .Include(f => f.Requester)
+            .Include(f => f.Addressee)
+            .Where(f => f.Status == FriendshipStatus.Accepted &&
+                        (f.RequesterId == userId || f.AddresseeId == userId))
+            .ToListAsync();
+
+        var friends = friendships
+            .Select(f => f.RequesterId == userId ? f.Addressee : f.Requester)
+            .Select(u => new {
+                u.Id,
+                u.Name,
+                u.Email
+            });
+
+        return Ok(friends);
+    }
+
+    
 }

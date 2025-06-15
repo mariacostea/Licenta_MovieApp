@@ -2,7 +2,6 @@
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using MobyLabWebProgramming.Core.Errors;
-using MobyLabWebProgramming.Core.Responses;
 using MobyLabWebProgramming.Infrastructure.Services.Interfaces;
 
 namespace MobyLabWebProgramming.Infrastructure.Services.Implementations

@@ -1,5 +1,4 @@
-﻿// Core/Entities/Crew.cs
-namespace MobyLabWebProgramming.Core.Entities;
+﻿namespace MobyLabWebProgramming.Core.Entities;
 
 public class Crew : BaseEntity
 {

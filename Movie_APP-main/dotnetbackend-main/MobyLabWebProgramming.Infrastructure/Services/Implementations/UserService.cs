@@ -235,11 +235,26 @@ public class UserService(
     public async Task<ServiceResponse<List<UserDTO>>> GetAllUsers(Guid currentUserId, CancellationToken cancellationToken = default)
     {
         var users = await repository.ListAsync(new UserProjectionSpec(), cancellationToken);
-
-        // Exclude the current user
+        
         var filteredUsers = users.Where(u => u.Id != currentUserId).ToList();
 
         return ServiceResponse<List<UserDTO>>.ForSuccess(filteredUsers);
+    }
+
+    public async Task<ServiceResponse<List<UserDTO>>> GetAvailableUsers(Guid currentUserId, CancellationToken cancellationToken = default)
+    {
+        var allUsers = await repository.ListAsync(new UserProjectionSpec(), cancellationToken);
+        var friendships = await repository.ListAsync(new FriendshipInvolvingUserSpec(currentUserId), cancellationToken);
+
+        var relatedUserIds = friendships
+            .Select(f => f.RequesterId == currentUserId ? f.AddresseeId : f.RequesterId)
+            .ToHashSet();
+
+        var availableUsers = allUsers
+            .Where(u => u.Id != currentUserId && !relatedUserIds.Contains(u.Id))
+            .ToList();
+
+        return ServiceResponse<List<UserDTO>>.ForSuccess(availableUsers);
     }
 
 

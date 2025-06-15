@@ -1,5 +1,4 @@
-﻿// src/components/Movies.tsx
-import React, { useEffect, useState, useCallback } from "react";
+﻿import React, { useEffect, useState, useCallback } from "react";
 import MovieCard, { MovieCardProps } from "./MovieCard";
 import Pagination       from "./Pagination";
 import NavigationBar    from "./NavigationBar";
@@ -63,7 +62,6 @@ const Movies: React.FC = () => {
         async (page = 1, f: ActiveFilter = filter) => {
             setLoading(true);
             try {
-                /* a) vizionate   b) pagina – în paralel */
                 const [ids, pageData] = await Promise.all([fetchWatched(), fetchPage(page, f)]);
                 setWatchedIds(ids);
                 setMovies(mergeWithWatched(pageData.data));

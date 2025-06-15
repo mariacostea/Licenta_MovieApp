@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Ardalis.Specification;
-using MobyLabWebProgramming.Core.DataTransferObjects;
-using MobyLabWebProgramming.Core.Entities;
-using MobyLabWebProgramming.Core.Responses;
+﻿using Ardalis.Specification;
 using MobyLabWebProgramming.Infrastructure.Database;
 using MobyLabWebProgramming.Infrastructure.Repositories.Interfaces;
 using MobyLabWebProgramming.Infrastructure.Services.Interfaces;
@@ -19,7 +11,7 @@ public class CrewService : ICrewService
 
     public CrewService(IRepository<WebAppDatabaseContext> repo) => _repo = repo;
 
-    // ---------------------- CREATE CREW ----------------------
+    // CREATE CREW
     public async Task<ServiceResponse> AddCrew(CrewDTO dto, CancellationToken ct = default)
     {
         var crew = new Crew
@@ -34,7 +26,7 @@ public class CrewService : ICrewService
         return ServiceResponse.ForSuccess();
     }
 
-    // ---------------------- READ ALL CREW --------------------
+    // READ ALL CREW
     public async Task<ServiceResponse<List<CrewDTO>>> GetAllCrew(CancellationToken ct = default)
     {
         var crews = await _repo.ListAsync(new CrewSpec(), ct);
@@ -51,7 +43,7 @@ public class CrewService : ICrewService
         return ServiceResponse<List<CrewDTO>>.ForSuccess(list);
     }
 
-    // ------------------ LINK CREW → MOVIE --------------------
+    // LINK CREW - MOVIE
     public async Task<ServiceResponse> AddCrewToMovie(Guid movieId, MovieCrewDTO dto, CancellationToken ct = default)
     {
         var link = new MovieCrew
@@ -65,7 +57,7 @@ public class CrewService : ICrewService
         return ServiceResponse.ForSuccess();
     }
 
-    // ------------- GET CREW FOR A SINGLE MOVIE ---------------
+    // GET CREW FOR A SINGLE MOVIE
     public async Task<ServiceResponse<List<CrewDTO>>> GetCrewForMovie(Guid movieId, CancellationToken ct = default)
     {
         var movieCrew = await _repo.ListAsync(new MovieCrewWithCrewSpec(movieId), ct);
@@ -82,8 +74,7 @@ public class CrewService : ICrewService
         return ServiceResponse<List<CrewDTO>>.ForSuccess(crewList);
     }
 
-    // -------------------- SPECIFICAȚII -----------------------
-    /// <summary>Returnează toate persoanele din crew, ordonate alfabetic.</summary>
+    // SPECIFICAȚII
     private sealed class CrewSpec : Specification<Crew>
     {
         public CrewSpec()
@@ -92,8 +83,7 @@ public class CrewService : ICrewService
                  .ThenBy(c => c.FirstName);
         }
     }
-
-    /// <summary>Întoarce toate legăturile Movie-Crew pt. un film și include entitatea Crew.</summary>
+    
     private sealed class MovieCrewWithCrewSpec : Specification<MovieCrew>
     {
         public MovieCrewWithCrewSpec(Guid movieId)

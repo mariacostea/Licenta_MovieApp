@@ -1,13 +1,12 @@
-﻿using MobyLabWebProgramming.Core.DataTransferObjects;
+﻿using System.Net;
+using MobyLabWebProgramming.Core.DataTransferObjects;
 using MobyLabWebProgramming.Core.Entities;
 using MobyLabWebProgramming.Core.Errors;
 using MobyLabWebProgramming.Core.Responses;
+using MobyLabWebProgramming.Core.Specifications;
 using MobyLabWebProgramming.Infrastructure.Database;
 using MobyLabWebProgramming.Infrastructure.Repositories.Interfaces;
 using MobyLabWebProgramming.Infrastructure.Services.Interfaces;
-using MobyLabWebProgramming.Core.Specifications;
-using System.Net;
-
 
 namespace MobyLabWebProgramming.Infrastructure.Services.Implementations;
 
@@ -17,7 +16,6 @@ public class FriendshipService : IFriendshipService
 
     public FriendshipService(IRepository<WebAppDatabaseContext> repo) => _repo = repo;
 
-    /* -------------------- GET -------------------- */
     public async Task<ServiceResponse<FriendshipDTO>> GetAsync(Guid id, CancellationToken ct = default)
     {
         var spec = new FriendshipProjectionSpec(id);
@@ -26,10 +24,8 @@ public class FriendshipService : IFriendshipService
         return result is null
             ? ServiceResponse.FromError<FriendshipDTO>(CommonErrors.EntityNotFound)
             : ServiceResponse.ForSuccess(result);
-
     }
 
-    /* -------------------- SEND REQUEST -------------------- */
     public async Task<ServiceResponse> SendRequestAsync(FriendshipRequestDTO dto, CancellationToken ct = default)
     {
         if (dto.FromUserId == dto.ToUserId)
@@ -38,7 +34,6 @@ public class FriendshipService : IFriendshipService
         var exists = await _repo.AnyAsync(new FriendshipExistsSpec(dto.FromUserId, dto.ToUserId), ct);
         if (exists)
             return ServiceResponse.FromError(new ErrorMessage(HttpStatusCode.BadRequest, "Friendship already exists!"));
-
 
         var entity = new Friendship
         {
@@ -52,7 +47,6 @@ public class FriendshipService : IFriendshipService
         return ServiceResponse.ForSuccess();
     }
 
-    /* -------------------- ACCEPT REQUEST -------------------- */
     public async Task<ServiceResponse> AcceptRequestAsync(Guid id, CancellationToken ct = default)
     {
         var friendship = await _repo.GetByIdAsync<Friendship>(id, ct);
@@ -66,7 +60,6 @@ public class FriendshipService : IFriendshipService
         return ServiceResponse.ForSuccess();
     }
 
-    /* -------------------- REJECT REQUEST -------------------- */
     public async Task<ServiceResponse> RejectRequestAsync(Guid id, CancellationToken ct = default)
     {
         var friendship = await _repo.GetByIdAsync<Friendship>(id, ct);
@@ -79,12 +72,71 @@ public class FriendshipService : IFriendshipService
         return ServiceResponse.ForSuccess();
     }
 
-    /* -------------------- LIST FOR USER -------------------- */
     public async Task<ServiceResponse<List<FriendshipDTO>>> ListForUserAsync(Guid userId, CancellationToken ct = default)
     {
         var spec = new FriendshipListForUserSpec(userId);
         var list = await _repo.ListAsync(spec, ct);
 
         return ServiceResponse<List<FriendshipDTO>>.ForSuccess(list);
+    }
+
+    public async Task<ServiceResponse<List<FriendshipDTO>>> AcceptedListForUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        var spec = new FriendshipAcceptedSpec(userId);
+        var list = await _repo.ListAsync(spec, ct);
+
+        return ServiceResponse<List<FriendshipDTO>>.ForSuccess(list);
+    }
+
+    public async Task<ServiceResponse<List<FriendshipDTO>>> PendingListForUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        var spec = new FriendshipPendingSpec(userId);
+        var list = await _repo.ListAsync(spec, ct);
+
+        return ServiceResponse<List<FriendshipDTO>>.ForSuccess(list);
+    }
+
+    public async Task<ServiceResponse<List<FriendshipDTO>>> RecievedListForUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        var spec = new FriendshipReceivedSpec(userId);
+        var list = await _repo.ListAsync(spec, ct);
+
+        return ServiceResponse<List<FriendshipDTO>>.ForSuccess(list);
+    }
+
+    public async Task<ServiceResponse<List<UserDTO>>> GetFriendsAsync(Guid userId, CancellationToken ct = default)
+    {
+        var spec = new FriendshipAcceptedSpec(userId);
+        var friendships = await _repo.ListAsync(spec, ct);
+
+        var userIds = friendships.Select(f => f.RequesterId == userId ? f.AddresseeId : f.RequesterId).ToList();
+        var users = await _repo.ListAsync(new UserProjectionSpec(), ct);
+        var result = users.Where(u => userIds.Contains(u.Id)).ToList();
+
+        return ServiceResponse<List<UserDTO>>.ForSuccess(result);
+    }
+
+    public async Task<ServiceResponse<List<UserDTO>>> GetPendingSentUsersAsync(Guid userId, CancellationToken ct = default)
+    {
+        var spec = new FriendshipPendingSpec(userId);
+        var friendships = await _repo.ListAsync(spec, ct);
+
+        var userIds = friendships.Select(f => f.AddresseeId).ToList();
+        var users = await _repo.ListAsync(new UserProjectionSpec(), ct);
+        var result = users.Where(u => userIds.Contains(u.Id)).ToList();
+
+        return ServiceResponse<List<UserDTO>>.ForSuccess(result);
+    }
+
+    public async Task<ServiceResponse<List<UserDTO>>> GetPendingReceivedUsersAsync(Guid userId, CancellationToken ct = default)
+    {
+        var spec = new FriendshipReceivedSpec(userId);
+        var friendships = await _repo.ListAsync(spec, ct);
+
+        var userIds = friendships.Select(f => f.RequesterId).ToList();
+        var users = await _repo.ListAsync(new UserProjectionSpec(), ct);
+        var result = users.Where(u => userIds.Contains(u.Id)).ToList();
+
+        return ServiceResponse<List<UserDTO>>.ForSuccess(result);
     }
 }

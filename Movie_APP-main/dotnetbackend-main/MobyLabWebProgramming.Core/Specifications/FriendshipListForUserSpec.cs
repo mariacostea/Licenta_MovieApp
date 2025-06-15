@@ -9,7 +9,7 @@ public sealed class FriendshipListForUserSpec : Specification<Core.Entities.Frie
     public FriendshipListForUserSpec(Guid userId)
     {
         Query
-            .Where(f => f.RequesterId == userId || f.AddresseeId == userId);
+            .Where((f => f.RequesterId == userId || f.AddresseeId == userId));
         Query
             .Select(f => new FriendshipDTO
             {

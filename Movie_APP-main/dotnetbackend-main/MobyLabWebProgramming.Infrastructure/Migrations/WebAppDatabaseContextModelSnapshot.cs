@@ -111,7 +111,43 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasIndex("OrganizerId");
 
-                    b.ToTable("Event");
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Feedback", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AgreeToTerms")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FeedbackType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Feedback");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Friendship", b =>
@@ -142,11 +178,16 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AddresseeId");
 
                     b.HasIndex("RequesterId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Friendship", (string)null);
                 });
@@ -172,7 +213,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genre");
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Movie", b =>
@@ -210,7 +251,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movie");
+                    b.ToTable("Movies");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.MovieCrew", b =>
@@ -268,7 +309,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("MovieGenre");
+                    b.ToTable("GenreMovies");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Notification", b =>
@@ -300,7 +341,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notification");
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Review", b =>
@@ -335,7 +376,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Review");
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.User", b =>
@@ -386,7 +427,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasAlternateKey("Email");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.UserEvent", b =>
@@ -417,7 +458,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserEvent");
+                    b.ToTable("UserEvents");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.UserMovie", b =>
@@ -453,7 +494,7 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
                     b.HasIndex("UserId", "MovieId")
                         .IsUnique();
 
-                    b.ToTable("UserMovie");
+                    b.ToTable("UserMovies");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Event", b =>
@@ -475,6 +516,17 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
                     b.Navigation("Organizer");
                 });
 
+            modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Feedback", b =>
+                {
+                    b.HasOne("MobyLabWebProgramming.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Friendship", b =>
                 {
                     b.HasOne("MobyLabWebProgramming.Core.Entities.User", "Addressee")
@@ -488,6 +540,10 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
                         .HasForeignKey("RequesterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MobyLabWebProgramming.Core.Entities.User", null)
+                        .WithMany("Friendships")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Addressee");
 
@@ -583,17 +639,21 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.UserMovie", b =>
                 {
-                    b.HasOne("MobyLabWebProgramming.Core.Entities.Movie", null)
+                    b.HasOne("MobyLabWebProgramming.Core.Entities.Movie", "Movie")
                         .WithMany("UserMovies")
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MobyLabWebProgramming.Core.Entities.User", null)
+                    b.HasOne("MobyLabWebProgramming.Core.Entities.User", "User")
                         .WithMany("UserMovies")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Movie");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.Crew", b =>
@@ -624,6 +684,8 @@ namespace MobyLabWebProgramming.Infrastructure.Migrations
 
             modelBuilder.Entity("MobyLabWebProgramming.Core.Entities.User", b =>
                 {
+                    b.Navigation("Friendships");
+
                     b.Navigation("Notifications");
 
                     b.Navigation("Reviews");

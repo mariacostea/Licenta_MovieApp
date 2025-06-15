@@ -1,5 +1,8 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import MapPopup from "./MapPopup";
 
 export interface MovieCardProps {
     id: string;
@@ -13,24 +16,18 @@ export interface MovieCardProps {
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
-                                                 id,
-                                                 title,
-                                                 year,
-                                                 averageRating,
-                                                 genres,
-                                                 posterUrl,
-                                                 isWatched: initialIsWatched,
-                                                 onMarked,
+                                                 id, title, year, averageRating, genres, posterUrl,
+                                                 isWatched: initialIsWatched, onMarked
                                              }) => {
     const navigate = useNavigate();
     const [isWatched, setIsWatched] = useState(initialIsWatched ?? false);
     const [showEventForm, setShowEventForm] = useState(false);
-
-    // Event form state
     const [eventLocation, setEventLocation] = useState("");
-    const [eventDate, setEventDate] = useState("");
-    const [eventParticipants, setEventParticipants] = useState(0);
-    const [eventdescription, setEventdescription] = useState("");
+    const [eventDate, setEventDate] = useState<Date | null>(null);
+    const [eventParticipants, setEventParticipants] = useState(1);
+    const [eventDescription, setEventDescription] = useState("");
+    const [showMapPopup, setShowMapPopup] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsWatched(initialIsWatched ?? false);
@@ -38,10 +35,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
     const markAsWatched = async () => {
         const token = localStorage.getItem("token");
-        if (!token) {
-            alert("You must be logged in.");
-            return;
-        }
+        if (!token) return alert("You must be logged in.");
 
         try {
             const res = await fetch("http://localhost:5000/api/UserMovie/MarkAsWatched", {
@@ -53,24 +47,20 @@ const MovieCard: React.FC<MovieCardProps> = ({
                 body: JSON.stringify({ title, year }),
             });
 
-            if (!res.ok) {
-                const j = await res.json().catch(() => ({}));
-                throw new Error(j?.error?.message ?? "Server error");
-            }
-
+            if (!res.ok) throw new Error("Error marking movie as watched.");
             setIsWatched(true);
             onMarked?.(id);
         } catch (err) {
-            console.error(err);
-            alert(err instanceof Error ? err.message : "Server error");
+            alert((err as Error).message);
         }
     };
 
     const createEvent = async () => {
         const token = localStorage.getItem("token");
-        if (!token) {
-            alert("You must be logged in.");
-            return;
+        if (!token) return alert("You must be logged in.");
+
+        if (!eventDate || !eventLocation.trim()) {
+            return alert("Complete all fields, including a valid location and future date.");
         }
 
         try {
@@ -82,103 +72,117 @@ const MovieCard: React.FC<MovieCardProps> = ({
                 },
                 body: JSON.stringify({
                     title,
-                    description: eventdescription,
+                    description: eventDescription,
                     location: eventLocation,
-                    date: new Date(eventDate).toISOString(),
-                    maxParticipants: eventParticipants,
+                    date: eventDate.toISOString(),
+                    maxParticipants: Math.max(eventParticipants, 1),
                     movieId: id,
                 }),
             });
 
-            if (!res.ok) {
-                const j = await res.json().catch(() => ({}));
-                throw new Error(j?.error?.message ?? "Server error");
-            }
-
+            if (!res.ok) throw new Error("Failed to create event.");
             alert("Event created successfully!");
             setShowEventForm(false);
         } catch (err) {
-            console.error(err);
-            alert(err instanceof Error ? err.message : "Server error");
+            alert((err as Error).message);
         }
     };
+    
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 2);
 
     return (
-        <div className="card h-100 text-white bg-dark border-secondary">
-            <img
-                src={posterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
-                alt={title}
-                className="card-img-top object-fit-cover"
-                style={{ height: 300 }}
-            />
+        <>
+            <div className="card h-100 text-white bg-dark border-secondary" ref={cardRef}>
+                <img
+                    src={posterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
+                    alt={title}
+                    className="card-img-top object-fit-cover"
+                    style={{ height: 300 }}
+                />
+                <div className="card-body">
+                    <h5 className="card-title">{title}</h5>
+                    <p className="card-text mb-1">{year ?? "—"} • {genres.join(", ")}</p>
+                    <p className="card-text">⭐ {averageRating.toFixed(1)}</p>
 
-            <div className="card-body">
-                <h5 className="card-title">{title}</h5>
-                <p className="card-text mb-1">
-                    {year ?? "—"} • {genres.join(", ")}
-                </p>
-                <p className="card-text">⭐ {averageRating.toFixed(1)}</p>
-
-                <div className="d-flex gap-2 mt-2">
-                    <button
-                        className="btn btn-outline-info btn-sm"
-                        onClick={() => navigate(`/movies/${id}`)}
-                    >
-                        Details
-                    </button>
-
-                    <button
-                        className={`btn btn-sm ${isWatched ? "btn-success" : "btn-outline-success"}`}
-                        onClick={markAsWatched}
-                        disabled={isWatched}
-                    >
-                        {isWatched ? "Watched" : "Mark as Watched"}
-                    </button>
-
-                    <button
-                        className="btn btn-outline-warning btn-sm"
-                        onClick={() => setShowEventForm(!showEventForm)}
-                    >
-                        Create Event
-                    </button>
-                </div>
-
-                {showEventForm && (
-                    <div className="mt-3 border-top pt-3">
-                        <h6>Create Event</h6>
-                        <input
-                            type="datetime-local"
-                            className="form-control mb-2"
-                            value={eventDate}
-                            onChange={(e) => setEventDate(e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            className="form-control mb-2"
-                            placeholder="Location"
-                            value={eventLocation}
-                            onChange={(e) => setEventLocation(e.target.value)}
-                        />
-                        <input
-                            type="number"
-                            className="form-control mb-2"
-                            placeholder="Max Participants"
-                            value={eventParticipants}
-                            onChange={(e) => setEventParticipants(Number(e.target.value))}
-                        />
-                        <textarea
-                            className="form-control mb-2"
-                            placeholder="Event Description"
-                            value={eventdescription}
-                            onChange={(e) => setEventdescription(e.target.value)}
-                        />
-                        <button className="btn btn-primary btn-sm" onClick={createEvent}>
-                            Submit Event
+                    <div className="d-flex gap-2 mt-2">
+                        <button className="btn btn-outline-info btn-sm" onClick={() => navigate(`/movies/${id}`)}>Details</button>
+                        <button
+                            className={`btn btn-sm ${isWatched ? "btn-success" : "btn-outline-success"}`}
+                            onClick={markAsWatched}
+                            disabled={isWatched}
+                        >
+                            {isWatched ? "Watched" : "Mark as Watched"}
+                        </button>
+                        <button className="btn btn-outline-warning btn-sm" onClick={() => setShowEventForm(!showEventForm)}>
+                            Create Event
                         </button>
                     </div>
-                )}
+
+                    {showEventForm && (
+                        <div className="mt-3 border-top pt-3">
+                            <h6>Create Event</h6>
+
+                            <label className="form-label">Date & Time</label>
+                            <DatePicker
+                                selected={eventDate}
+                                onChange={(date) => setEventDate(date)}
+                                showTimeSelect
+                                dateFormat="MMMM d, yyyy h:mm aa"
+                                timeIntervals={15}
+                                timeCaption="Time"
+                                minDate={minDate}
+                                className="form-control mb-2"
+                                placeholderText="Click to select date and time"
+                            />
+
+                            <label className="form-label">Location</label>
+                            <input
+                                type="text"
+                                className="form-control mb-2"
+                                value={eventLocation}
+                                placeholder="Click to select location"
+                                onClick={() => setShowMapPopup(true)}
+                                onFocus={() => !eventLocation && setShowMapPopup(true)}
+                                readOnly
+                            />
+
+                            <label className="form-label">Max Participants</label>
+                            <input
+                                type="number"
+                                className="form-control mb-2"
+                                value={eventParticipants}
+                                min={1}
+                                onChange={(e) => setEventParticipants(Math.max(1, Number(e.target.value)))}
+                            />
+
+                            <label className="form-label">Description</label>
+                            <textarea
+                                className="form-control mb-2"
+                                value={eventDescription}
+                                onChange={(e) => setEventDescription(e.target.value)}
+                            />
+
+                            <div className="d-flex justify-content-between">
+                                <button className="btn btn-secondary" onClick={() => setShowEventForm(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={createEvent}>Submit Event</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+
+            {showMapPopup && (
+                <MapPopup
+                    anchorRef={cardRef}
+                    onClose={() => setShowMapPopup(false)}
+                    onLocationSelect={(location) => {
+                        setEventLocation(location);
+                        setShowMapPopup(false);
+                    }}
+                />
+            )}
+        </>
     );
 };
 

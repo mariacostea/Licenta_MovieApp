@@ -9,7 +9,6 @@ public sealed class EventProjectionSpec : Specification<Event, EventDTO>
 {
     public EventProjectionSpec(bool orderByCreatedAt = false)
     {
-        // Include Movie pentru a avea acces la Title si PosterUrl
         Query.Include(e => e.Movie);
 
         Query.Select(e => new EventDTO
@@ -24,8 +23,7 @@ public sealed class EventProjectionSpec : Specification<Event, EventDTO>
             OrganizerId = e.OrganizerId,
             MovieId = e.MovieId,
             CreatedAt = e.CreatedAt,
-
-            // Acestea sunt luate acum din Movie (join automat facut de EF)
+            
             MovieTitle = e.Movie != null ? e.Movie.Title : "Unknown",
             MoviePosterUrl = e.Movie != null ? e.Movie.PosterUrl : null
         });

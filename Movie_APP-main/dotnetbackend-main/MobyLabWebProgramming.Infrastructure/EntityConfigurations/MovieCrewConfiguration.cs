@@ -14,10 +14,9 @@ public sealed class MovieCrewConfiguration : IEntityTypeConfiguration<MovieCrew>
         builder.HasKey(mc => mc.Id);
 
         builder.Property(mc => mc.PersonType)
-            .HasConversion<int>()   // salvează enum ca int
+            .HasConversion<int>()
             .IsRequired();
-
-        // relațiile (redundanță acceptată – dar păstrează totul într-un singur loc)
+        
         builder.HasOne(mc => mc.Movie)
             .WithMany(m => m.MovieCrews)
             .HasForeignKey(mc => mc.MovieId)
@@ -27,8 +26,7 @@ public sealed class MovieCrewConfiguration : IEntityTypeConfiguration<MovieCrew>
             .WithMany(c => c.MovieCrews)
             .HasForeignKey(mc => mc.CrewId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        // Unicitate Movie + Crew pentru a evita duplicatele
+        
         builder.HasIndex(mc => new { mc.MovieId, mc.CrewId })
             .IsUnique();
     }

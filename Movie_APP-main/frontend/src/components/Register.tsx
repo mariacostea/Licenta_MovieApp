@@ -45,7 +45,7 @@ const Register: React.FC = () => {
                     Username: username,
                     Email: email,
                     Password: password,
-                    ProfilePictureUrl: profilePictureBase64, // imaginea din PC
+                    ProfilePictureUrl: profilePictureBase64,
                 }),
             });
 

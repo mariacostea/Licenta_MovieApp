@@ -16,7 +16,7 @@ public class EventService : IEventService
 
     public EventService(IRepository<WebAppDatabaseContext> repo) => _repo = repo;
 
-    // ---------------------- CREATE ----------------------
+    // CREATE
     public async Task<EventDTO> CreateEventAsync(EventCreateDTO dto, Guid userId, UserRoleEnum role)
     {
         if (role == UserRoleEnum.User && dto.MaxParticipants > 10)
@@ -69,10 +69,9 @@ public class EventService : IEventService
         };
     }
 
-    // ---------------------- UPDATE ----------------------
+    // UPDATE
     public async Task<EventDTO> UpdateEventAsync(Guid eventId, EventCreateDTO dto, Guid userId)
     {
-        // ✅ Verifică dacă utilizatorul este organizator în UserEvent
         var isOrganizer = await _repo.AnyAsync(new UserEventIsOrganizerSpec(eventId, userId));
         if (!isOrganizer)
             throw new ServerException(HttpStatusCode.Forbidden, "Access denied. You must be the organizer to update this event.");
@@ -120,20 +119,30 @@ public class EventService : IEventService
     }
 
 
-    // ---------------------- DELETE ----------------------
+    // DELETE
     public async Task DeleteEventAsync(Guid eventId, Guid userId)
     {
-        var isOrganizer = await _repo.AnyAsync(new UserEventIsOrganizerSpec(eventId, userId));
+        try
+        {
+            var isOrganizer = await _repo.AnyAsync(new UserEventIsOrganizerSpec(eventId, userId));
 
-        if (!isOrganizer)
-            throw new ServerException(HttpStatusCode.Forbidden, "Access denied. You must be the organizer to delete this event.");
+            if (!isOrganizer)
+                throw new ServerException(HttpStatusCode.Forbidden, "Access denied. You must be the organizer to delete this event.");
 
-        await _repo.DeleteAsync<Event>(eventId);
+            await _repo.DeleteAsync<Event>(eventId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in DeleteEventAsync: {ex.Message}");
+            Console.WriteLine(ex.StackTrace);
+            throw;
+        }
     }
 
 
 
-    // ---------------------- LIST METHODS ----------------------
+
+    // LIST METHODS
        public async Task<List<EventDTO>> GetEventsByUserRoleAsync(Guid userId, string role)
     {
         return await _repo.ListAsync(new EventProjectionSpec(userId, role));

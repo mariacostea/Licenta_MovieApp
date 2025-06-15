@@ -6,6 +6,7 @@ const Dashboard: React.FC = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('userId');
         navigate('/login');
     };
 
@@ -15,7 +16,7 @@ const Dashboard: React.FC = () => {
         { label: '📰 Feed', path: '/feed' },
         { label: '👥 People', path: '/people' },
         { label: '⭐ Recommendation', path: '/recommendation' },
-        { label : 'Feedback', path: '/feedback' },
+        { label: '📝 Feedback', path: '/feedback' },
     ];
 
     return (
@@ -42,7 +43,7 @@ const Dashboard: React.FC = () => {
                     maxWidth: '600px',
                 }}
             >
-                <h1 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: '#2c2c2c' }}>
+                <h1 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: '#eee' }}>
                     Welcome to <span style={{ color: '#c11c1c' }}>MovieApp 🎬</span>
                 </h1>
 
@@ -62,12 +63,6 @@ const Dashboard: React.FC = () => {
                                 transition: '0.3s ease',
                                 fontWeight: 'bold',
                                 minWidth: '160px',
-                            }}
-                            onMouseEnter={(e) => {
-                                (e.target as HTMLButtonElement).style.backgroundColor = '#c11c1c';
-                            }}
-                            onMouseLeave={(e) => {
-                                (e.target as HTMLButtonElement).style.backgroundColor = '#c11c1c';
                             }}
                         >
                             {btn.label}

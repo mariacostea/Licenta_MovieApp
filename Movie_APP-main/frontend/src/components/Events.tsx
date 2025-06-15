@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
+import EditPopup from "./EditPopup";
 
 interface Event {
     id: string;
@@ -28,6 +29,7 @@ const EventsPage: React.FC = () => {
     const [view, setView] = useState<ViewMode>("all");
     const [filterMode, setFilterMode] = useState<FilterMode>("none");
     const [filterValue, setFilterValue] = useState<string>("");
+    const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
     const fetchEvents = async (mode: ViewMode) => {
         setLoading(true);
@@ -65,16 +67,13 @@ const EventsPage: React.FC = () => {
         try {
             const res = await fetch(`http://localhost:5000/api/Event/attend/${eventId}`, {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             if (!res.ok) throw new Error("Failed to attend.");
-
             alert("Successfully joined the event!");
             fetchEvents(view);
-        } catch (err) {
+        } catch {
             alert("Error joining event.");
         }
     };
@@ -89,13 +88,10 @@ const EventsPage: React.FC = () => {
         try {
             const res = await fetch(`http://localhost:5000/api/Event/delete/${eventId}`, {
                 method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             if (!res.ok) throw new Error("Failed to delete event.");
-
             alert("Event deleted successfully.");
             fetchEvents(view);
         } catch (err) {
@@ -104,29 +100,12 @@ const EventsPage: React.FC = () => {
         }
     };
 
-    const updateEvent = async (event: Event) => {
+    const updateEvent = async (updatedEvent: Event) => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in!");
 
-        const newTitle = prompt("Enter new title", event.title);
-        const newDescription = prompt("Enter new description", event.description);
-        const newLocation = prompt("Enter new location", event.location);
-        const newDate = prompt("Enter new date (YYYY-MM-DDTHH:mm)", event.date);
-        const newMaxParticipants = prompt("Enter new max participants", event.maxParticipants.toString());
-
-        if (!newTitle || !newDescription || !newLocation || !newDate || !newMaxParticipants) return;
-
-        const updatedEvent = {
-            title: newTitle,
-            description: newDescription,
-            location: newLocation,
-            date: newDate,
-            maxParticipants: parseInt(newMaxParticipants),
-            movieId: event.movieId,
-        };
-
         try {
-            const res = await fetch(`http://localhost:5000/api/Event/update/${event.id}`, {
+            const res = await fetch(`http://localhost:5000/api/Event/update/${updatedEvent.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -146,7 +125,6 @@ const EventsPage: React.FC = () => {
 
     const applyFilter = async () => {
         if (!filterValue.trim()) return;
-
         setLoading(true);
         let url = "";
 
@@ -157,7 +135,7 @@ const EventsPage: React.FC = () => {
             case "day":
                 url = `http://localhost:5000/api/Event/by-day?date=${filterValue}`;
                 break;
-            case "month":
+            case "month": {
                 const [year, month] = filterValue.split("-");
                 if (!year || !month) {
                     alert("Please enter month as YYYY-MM");
@@ -166,6 +144,7 @@ const EventsPage: React.FC = () => {
                 }
                 url = `http://localhost:5000/api/Event/by-month?year=${year}&month=${month}`;
                 break;
+            }
             case "movie":
                 url = `http://localhost:5000/api/Event/by-movie-title?title=${encodeURIComponent(filterValue)}`;
                 break;
@@ -177,11 +156,9 @@ const EventsPage: React.FC = () => {
         try {
             const res = await fetch(url);
             const data: ApiResponse<Event[]> = await res.json();
-
             if (!res.ok) throw new Error(data as unknown as string);
-
             setEvents(data.result);
-        } catch (err) {
+        } catch {
             alert("Error applying filter.");
         } finally {
             setLoading(false);
@@ -245,7 +222,7 @@ const EventsPage: React.FC = () => {
                                 />
                                 <div className="card-body">
                                     <h5 className="card-title">{event.title}</h5>
-                                    <p className="card-text"><strong>🎬 Movie:</strong> {event.movieTitle ?? "Unknown"}</p>
+                                    <p className="card-text"><strong>🎮 Movie:</strong> {event.movieTitle ?? "Unknown"}</p>
                                     <p className="card-text">{event.description}</p>
                                     <p className="card-text"><strong>📍 Location:</strong> {event.location}</p>
                                     <p className="card-text"><strong>🗓️ Date:</strong> {new Date(event.date).toLocaleString()}</p>
@@ -257,7 +234,7 @@ const EventsPage: React.FC = () => {
 
                                     {view === "my" && (
                                         <>
-                                            <button className="btn btn-sm btn-warning mt-2 me-2" onClick={() => updateEvent(event)}>Modify</button>
+                                            <button className="btn btn-sm btn-warning mt-2 me-2" onClick={() => setEditingEvent(event)}>Modify</button>
                                             <button className="btn btn-sm btn-danger mt-2" onClick={() => deleteEvent(event.id)}>Delete Event</button>
                                         </>
                                     )}
@@ -266,6 +243,17 @@ const EventsPage: React.FC = () => {
                         </div>
                     ))}
                 </div>
+            )}
+
+            {editingEvent && (
+                <EditPopup
+                    event={editingEvent}
+                    onClose={() => setEditingEvent(null)}
+                    onSave={(updated) => {
+                        updateEvent(updated);
+                        setEditingEvent(null);
+                    }}
+                />
             )}
         </div>
     );

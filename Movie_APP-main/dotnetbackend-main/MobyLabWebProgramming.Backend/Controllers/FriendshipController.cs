@@ -10,7 +10,7 @@ namespace MobyLabWebProgramming.Backend.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class FriendshipController(IFriendshipService service) : ControllerBase
+public class FriendshipController(IFriendshipService friendshipService) : ControllerBase
 {
     [HttpPost("request")]
     public async Task<IActionResult> SendRequest([FromBody] FriendshipRequestCreateDTO dto)
@@ -25,38 +25,77 @@ public class FriendshipController(IFriendshipService service) : ControllerBase
             ToUserId = dto.ToUserId
         };
 
-        var result = await service.SendRequestAsync(friendshipRequest);
+        var result = await friendshipService.SendRequestAsync(friendshipRequest);
         return this.FromServiceResponse(result);
     }
-    
-    // --- Accept a friend request ---
+
     [HttpPost("accept/{id:guid}")]
     public async Task<IActionResult> Accept([FromRoute] Guid id)
     {
-        var result = await service.AcceptRequestAsync(id, HttpContext.RequestAborted);
+        var result = await friendshipService.AcceptRequestAsync(id, HttpContext.RequestAborted);
         return this.FromServiceResponse(result);
     }
 
-    // --- Reject a friend request ---
     [HttpPost("reject/{id:guid}")]
     public async Task<IActionResult> Reject([FromRoute] Guid id)
     {
-        var result = await service.RejectRequestAsync(id, HttpContext.RequestAborted);
+        var result = await friendshipService.RejectRequestAsync(id, HttpContext.RequestAborted);
         return this.FromServiceResponse(result);
     }
-
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get([FromRoute] Guid id)
     {
-        var result = await service.GetAsync(id, HttpContext.RequestAborted);
+        var result = await friendshipService.GetAsync(id, HttpContext.RequestAborted);
         return this.FromServiceResponse(result);
     }
-    
+
     [HttpGet("list/{userId:guid}")]
     public async Task<IActionResult> List([FromRoute] Guid userId)
     {
-        var result = await service.ListForUserAsync(userId, HttpContext.RequestAborted);
+        var result = await friendshipService.ListForUserAsync(userId, HttpContext.RequestAborted);
+        return this.FromServiceResponse(result);
+    }
+
+    [HttpGet("list/accepted/{userId:guid}")]
+    public async Task<IActionResult> AcceptedList([FromRoute] Guid userId)
+    {
+        var result = await friendshipService.AcceptedListForUserAsync(userId, HttpContext.RequestAborted);
+        return this.FromServiceResponse(result);
+    }
+
+    [HttpGet("list/pending/{userId:guid}")]
+    public async Task<IActionResult> PendingList([FromRoute] Guid userId)
+    {
+        var result = await friendshipService.PendingListForUserAsync(userId, HttpContext.RequestAborted);
+        return this.FromServiceResponse(result);
+    }
+
+    [HttpGet("list/received/{userId:guid}")]
+    public async Task<IActionResult> ReceivedList([FromRoute] Guid userId)
+    {
+        var result = await friendshipService.RecievedListForUserAsync(userId, HttpContext.RequestAborted);
+        return this.FromServiceResponse(result);
+    }
+
+    [HttpGet("users/pending/sent/{userId:guid}")]
+    public async Task<IActionResult> GetPendingSentUsers([FromRoute] Guid userId)
+    {
+        var result = await friendshipService.GetPendingSentUsersAsync(userId, HttpContext.RequestAborted);
+        return this.FromServiceResponse(result);
+    }
+
+    [HttpGet("users/pending/received/{userId:guid}")]
+    public async Task<IActionResult> GetPendingReceivedUsers([FromRoute] Guid userId)
+    {
+        var result = await friendshipService.GetPendingReceivedUsersAsync(userId, HttpContext.RequestAborted);
+        return this.FromServiceResponse(result);
+    }
+
+    [HttpGet("users/friends/{userId:guid}")]
+    public async Task<IActionResult> GetFriends([FromRoute] Guid userId)
+    {
+        var result = await friendshipService.GetFriendsAsync(userId, HttpContext.RequestAborted);
         return this.FromServiceResponse(result);
     }
 }

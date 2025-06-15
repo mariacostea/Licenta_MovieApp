@@ -9,8 +9,4 @@ public class ReviewSpec : Specification<Review>
     {
         Query.Where(r => r.MovieId == movieId);
     }
-    public ReviewSpec(Guid movieId, Guid userId)
-    {
-        Query.Where(r => r.MovieId == movieId && r.UserId == userId);
-    }
 }

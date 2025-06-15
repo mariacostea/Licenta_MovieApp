@@ -30,5 +30,7 @@ public class User : BaseEntity
     public ICollection<UserMovie> UserMovies { get; set; }
     
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    
+    public ICollection<Friendship> Friendships { get; set; } = new List<Friendship>();
 
 }

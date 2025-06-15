@@ -1,5 +1,4 @@
-﻿// Bootstrap Offcanvas panel (end/right)
-import React, { useRef } from "react";
+﻿import React, { useRef } from "react";
 import { Offcanvas } from "bootstrap";
 
 interface Props {
@@ -8,11 +7,9 @@ interface Props {
 
 const FilterMenu: React.FC<Props> = ({ onApply }) => {
     const panel = useRef<HTMLDivElement>(null);
-
-    /** helper – creăm instanţa Bootstrap Offcanvas la nevoie */
+    
     const bs = () => panel.current && Offcanvas.getOrCreateInstance(panel.current);
-
-    /** trimite filtrele + închide panoul */
+    
     const handleApply = (e: React.FormEvent) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget as HTMLFormElement);
@@ -27,12 +24,9 @@ const FilterMenu: React.FC<Props> = ({ onApply }) => {
 
     return (
         <>
-            {/* buton care deschide panoul */}
             <button className="btn btn-primary" onClick={() => bs()?.show()}>
                 Filter
             </button>
-
-            {/*  off-canvas  */}
             <div className="offcanvas offcanvas-end text-bg-light" ref={panel} id="filterPanel">
                 <div className="offcanvas-header">
                     <h5 className="offcanvas-title">Filters</h5>
@@ -41,7 +35,6 @@ const FilterMenu: React.FC<Props> = ({ onApply }) => {
 
                 <div className="offcanvas-body">
                     <form onSubmit={handleApply} className="d-grid gap-3">
-                        {/* Year */}
                         <div>
                             <label className="form-label">Year</label>
                             <input
@@ -51,8 +44,6 @@ const FilterMenu: React.FC<Props> = ({ onApply }) => {
                                 placeholder="e.g. 2015"
                             />
                         </div>
-
-                        {/* Genre */}
                         <div>
                             <label className="form-label">Genre</label>
                             <select name="genre" className="form-select default-select">

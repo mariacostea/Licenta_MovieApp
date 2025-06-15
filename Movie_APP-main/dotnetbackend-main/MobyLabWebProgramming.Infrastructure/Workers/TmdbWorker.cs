@@ -36,8 +36,7 @@ public sealed class TmdbImportWorker : BackgroundService
         _scopeFactory = scopeFactory;
         _tmdb         = tmdbCfg.Value;
     }
-
-    // ------------------------------------------------------------------
+    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -46,8 +45,7 @@ public sealed class TmdbImportWorker : BackgroundService
             await Task.Delay(RunInterval, stoppingToken);
         }
     }
-
-    // ------------------------------------------------------------------
+    
     private async Task DoWorkAsync(CancellationToken ct)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
@@ -75,8 +73,7 @@ public sealed class TmdbImportWorker : BackgroundService
 
         _currentPage += PagesPerCycle;
     }
-
-    // ------------------------------------------------------------------
+    
     private async Task<int> ImportPageAsync(JsonDocument pageDoc,
                                             IRepository<WebAppDatabaseContext> repo,
                                             CancellationToken ct)
@@ -87,8 +84,7 @@ public sealed class TmdbImportWorker : BackgroundService
         {
             var title       = movieElt.GetProperty("title").GetString() ?? string.Empty;
             var releaseText = movieElt.GetProperty("release_date").GetString() ?? string.Empty;
-
-            // protecţie contra datelor lipsă → sari peste filmul fără an valid
+            
             if (releaseText.Length < 4 || !int.TryParse(releaseText[..4], out var year))
                 continue;
 
@@ -107,8 +103,7 @@ public sealed class TmdbImportWorker : BackgroundService
             };
             await repo.AddAsync(movie, ct);
             added++;
-
-            // ---- Genres ----
+            
             foreach (var gid in movieElt.GetProperty("genre_ids").EnumerateArray().Select(e => e.GetInt32()))
             {
                 var name = GenreIdToName(gid);
@@ -119,16 +114,14 @@ public sealed class TmdbImportWorker : BackgroundService
 
                 await repo.AddAsync(new MovieGenre { MovieId = movie.Id, GenreId = genre.Id }, ct);
             }
-
-            // ---- Cast & Crew ----
+            
             var tmdbId = movieElt.GetProperty("id").GetInt32();
             await ImportCreditsAsync(movie, tmdbId, repo, ct);
         }
 
         return added;
     }
-
-    // ------------------------------------------------------------------
+    
     private async Task ImportCreditsAsync(Movie movie,
                                           int movieTmdbId,
                                           IRepository<WebAppDatabaseContext> repo,
@@ -140,8 +133,7 @@ public sealed class TmdbImportWorker : BackgroundService
 
         using var creditsDoc = JsonDocument.Parse(await creditsResp.Content.ReadAsStringAsync(ct));
         var root = creditsDoc.RootElement;
-
-        // ---------- CAST (Actors) ----------
+        
         foreach (var cast in root.GetProperty("cast").EnumerateArray())
         {
             var crewId = await EnsureCrewAsync(cast, repo, ct);
@@ -155,8 +147,7 @@ public sealed class TmdbImportWorker : BackgroundService
                     PersonType = PersonTypeEnum.Actor
                 }, ct);
         }
-
-        // ---------- CREW (Director / Writer) ----------
+        
         foreach (var crewElem in root.GetProperty("crew").EnumerateArray())
         {
             var job = crewElem.GetProperty("job").GetString() ?? string.Empty;
@@ -181,8 +172,7 @@ public sealed class TmdbImportWorker : BackgroundService
                 }, ct);
         }
     }
-
-    // ------------------------------------------------------------------
+    
     private async Task<Guid?> EnsureCrewAsync(JsonElement elem,
                                               IRepository<WebAppDatabaseContext> repo,
                                               CancellationToken ct)
@@ -208,8 +198,7 @@ public sealed class TmdbImportWorker : BackgroundService
         await repo.AddAsync(crew, ct);
         return crew.Id;
     }
-
-    // ------------------------------------------------------------------
+    
     private static string? GenreIdToName(int id) => id switch
     {
         28      => "Action",

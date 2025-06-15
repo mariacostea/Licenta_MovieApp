@@ -20,8 +20,7 @@ public sealed class CrewConfiguration : IEntityTypeConfiguration<Crew>
         builder.Property(c => c.LastName)
             .IsRequired()
             .HasMaxLength(100);
-
-        // ImageUrl poate fi NULL (problema care ți-a dat eroare)
+        
         builder.Property(c => c.ImageUrl)
             .HasMaxLength(400)
             .IsRequired(false);
@@ -31,8 +30,7 @@ public sealed class CrewConfiguration : IEntityTypeConfiguration<Crew>
 
         builder.Property(c => c.TmdbId)
             .IsRequired(false);
-
-        // Index unic pe TmdbId când nu e NULL
+        
         builder.HasIndex(c => c.TmdbId)
             .IsUnique()
             .HasFilter("\"TmdbId\" IS NOT NULL");

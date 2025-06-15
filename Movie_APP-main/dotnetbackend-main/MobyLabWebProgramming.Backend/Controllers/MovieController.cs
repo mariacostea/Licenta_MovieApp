@@ -16,8 +16,7 @@ public sealed class MovieController(IMovieService service) : ControllerBase
     public async Task<IActionResult> All([FromQuery] PageDTO p)
         => Ok(ServiceResponse.ForSuccess(
             await service.GetAllMoviesAsync(p.Page, p.PageSize)));
-
-    /* title & year exact */
+    
     [HttpGet("by-title")]
     public async Task<IActionResult> ByTitle(
         [FromQuery] string title, [FromQuery] int year)
@@ -29,28 +28,24 @@ public sealed class MovieController(IMovieService service) : ControllerBase
                                  "Film inexistent", ErrorCodes.EntityNotFound)))
             : Ok(ServiceResponse.ForSuccess(m));
     }
-
-    /* genre */
+    
     [HttpGet("by-genre")]
     public async Task<IActionResult> ByGenre(
         [FromQuery] string genre, [FromQuery] PageDTO p)
         => Ok(ServiceResponse.ForSuccess(
             await service.GetMoviesByGenreAsync(genre, p.Page, p.PageSize)));
-
-    /* year */
+    
     [HttpGet("by-year")]
     public async Task<IActionResult> ByYear(
         [FromQuery] int year, [FromQuery] PageDTO p)
         => Ok(ServiceResponse.ForSuccess(
             await service.GetMoviesByYearAsync(year, p.Page, p.PageSize)));
-
-    /* simple search în titlu (toate rezultatele) */
+    
     [HttpGet("search-by-title")]
     public async Task<IActionResult> SearchByTitle([FromQuery] string title)
         => Ok(ServiceResponse.ForSuccess(
             await service.SearchAllMoviesByTitleAsync(title)));
-
-    /* filtrare compusă year + genre (ambele opţionale) */
+    
     [HttpGet("filter")]
     public async Task<IActionResult> Filter(
         [FromQuery] int? year,

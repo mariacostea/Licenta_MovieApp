@@ -21,21 +21,18 @@ public class ReviewService : IReviewService
 
     public async Task AddReviewAsync(ReviewDTO dto, Guid userId)
     {
-        // ✅ Verifică dacă utilizatorul a văzut filmul
         var watchedSpec = new UserMovieSpec(userId, dto.MovieId);
         var hasWatched = await _repo.GetAsync(watchedSpec);
 
         if (hasWatched is null)
             throw new ServerException(HttpStatusCode.BadRequest, "You must watch the movie before leaving a review.");
-
-        // ✅ Verifică dacă utilizatorul a lăsat deja un review pentru acest film
+        
         var existingReviewSpec = new ReviewByUserAndMovieSpec(userId, dto.MovieId);
         var existingReview = await _repo.GetAsync(existingReviewSpec);
 
         if (existingReview != null)
             throw new ServerException(HttpStatusCode.BadRequest, "You have already submitted a review for this movie.");
-
-        // ✅ Creează și salvează review-ul
+        
         var review = new Review
         {
             UserId = userId,
@@ -45,8 +42,7 @@ public class ReviewService : IReviewService
         };
 
         await _repo.AddAsync(review);
-
-        // ✅ Update la media rating-urilor
+        
         var allReviewsSpec = new ReviewSpec(dto.MovieId);
         var allReviews = await _repo.ListAsync(allReviewsSpec);
 

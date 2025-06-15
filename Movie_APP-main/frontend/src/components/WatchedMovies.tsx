@@ -19,8 +19,7 @@ const WatchedMovies: React.FC = () => {
 
             const jsonIds = await resIds.json();
             const ids = jsonIds.result as string[];
-
-            // Step 2: For each ID fetch movie details
+            
             const moviePromises = ids.map(id =>
                 fetch(`http://localhost:5000/api/movie/${id}`)
                     .then(res => res.json())
@@ -28,8 +27,7 @@ const WatchedMovies: React.FC = () => {
             );
 
             const movieData = await Promise.all(moviePromises);
-
-            // Step 3: Save movies
+            
             setMovies(movieData);
         } catch (err) {
             console.error("Error loading watched movies:", err);

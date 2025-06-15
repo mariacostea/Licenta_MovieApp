@@ -24,6 +24,7 @@ const Login: React.FC = () => {
 
             if (token) {
                 localStorage.setItem('token', token);
+                localStorage.setItem('userId', data.response.user.id);
                 navigate('/dashboard');
             } else {
                 alert(data.errorMessage || 'Login failed. Please check your credentials.');

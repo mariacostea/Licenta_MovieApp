@@ -60,5 +60,8 @@ public interface IUserService
     
     Task<RequestResponse> UpgradeUserToPremium(Guid userId);
     Task<ServiceResponse<List<UserDTO>>> GetAllUsers(Guid currentUserId, CancellationToken cancellationToken = default);
+    
+    Task<ServiceResponse<List<UserDTO>>> GetAvailableUsers(Guid currentUserId, CancellationToken cancellationToken = default);
+
 
 }

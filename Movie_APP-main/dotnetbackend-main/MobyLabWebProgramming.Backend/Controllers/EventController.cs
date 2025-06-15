@@ -52,7 +52,6 @@ public class EventController(IEventService eventService) : ControllerBase
     public async Task<ActionResult<ServiceResponse>> Delete(Guid eventId)
     {
         var userId = GetLoggedInUserId();
-        var role = GetLoggedInUserRole();
         await eventService.DeleteEventAsync(eventId, userId);
         return Ok(ServiceResponse.ForSuccess());
     }

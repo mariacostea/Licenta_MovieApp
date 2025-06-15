@@ -2,10 +2,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using MobyLabWebProgramming.Core.Configuration;
-using MobyLabWebProgramming.Core.DataTransferObjects;
-using MobyLabWebProgramming.Core.Entities;
 using MobyLabWebProgramming.Core.Errors;
-using MobyLabWebProgramming.Core.Responses;
 using MobyLabWebProgramming.Core.Specifications;
 using MobyLabWebProgramming.Infrastructure.Database;
 using MobyLabWebProgramming.Infrastructure.Repositories.Interfaces;
@@ -26,7 +23,7 @@ public sealed class MovieService : IMovieService
         _tmdb      = tmdbConfig;
     }
 
-    /*────────────  CREATE  ────────────*/
+    // CREATE
     public async Task<Movie> AddOrGetMovieFromApi(MovieDTO dto)
     {
         var existing = await _movieRepo.GetAsync(
@@ -51,7 +48,7 @@ public sealed class MovieService : IMovieService
         return movie;
     }
 
-    /*────────────  READ: paginare globală  ────────────*/
+    // READ: paginare globală
     public async Task<PagedResponse<MovieDetailsDTO>>
         GetAllMoviesAsync(int page, int pageSize)
     {
@@ -62,13 +59,13 @@ public sealed class MovieService : IMovieService
         return new(page, pageSize, totalCount, list);
     }
 
-    /*────────────  READ: titlu + an exact  ────────────*/
+    // READ: titlu + an exact
     public async Task<MovieDetailsDTO?>
         GetMovieByTitleAsync(string title, int year)
         => await _movieRepo.GetAsync(
             new MovieProjectionByTitleAndYearSpec(title, year));
 
-    /*────────────  READ: gen  ────────────*/
+    // READ: gen
     public async Task<PagedResponse<MovieDetailsDTO>>
         GetMoviesByGenreAsync(string genre, int page, int pageSize)
     {
@@ -79,7 +76,7 @@ public sealed class MovieService : IMovieService
         return new(page, pageSize, total, list);
     }
 
-    /*────────────  READ: an (paginat)  ────────────*/
+    // READ: an (paginat)
     public async Task<PagedResponse<MovieDetailsDTO>>
         GetMoviesByYearAsync(int year, int page, int pageSize)
     {
@@ -90,12 +87,12 @@ public sealed class MovieService : IMovieService
         return new(page, pageSize, total, list);
     }
 
-    /*────────────  READ: full-text titlu  ────────────*/
+    // READ: full-text titlu
     public async Task<IReadOnlyList<MovieDetailsDTO>>
         SearchAllMoviesByTitleAsync(string title)
         => await _movieRepo.ListAsync(new MovieProjectionByTitleSpec(title));
 
-    /*────────────  READ: combinaţie year+genre  ────────────*/
+    // READ: year+genre
     public async Task<PagedResponse<MovieDetailsDTO>>
         FilterMoviesAsync(int? year, string? genre, int page, int pageSize)
     {
@@ -108,7 +105,7 @@ public sealed class MovieService : IMovieService
         return new(page, pageSize, total, list);
     }
 
-    /*── helper TMDB ──*/
+    // helper TMDB
     private async Task<JsonElement?> FetchMovieFromTmdb(string title, int year)
     {
         var url =
