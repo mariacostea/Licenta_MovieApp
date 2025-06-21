@@ -51,7 +51,7 @@ const MovieDetails: React.FC = () => {
 
     useEffect(() => {
         if (!id) return;
-        fetch(`http://localhost:5000/api/movie/${id}`)
+        fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/${id}`)
             .then(res => res.json())
             .then(json => {
                 setMovie(json.result);
