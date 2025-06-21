@@ -175,7 +175,7 @@ const MovieDetails: React.FC = () => {
                                     <button className="btn btn-danger btn-sm" onClick={async () => {
                                         const token = localStorage.getItem("token");
                                         if (!token) return;
-                                        await fetch(`http://localhost:5000/api/Review/Delete/${rev.id}`, {
+                                        await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Delete/${rev.id}`, {
                                             method: "DELETE",
                                             headers: { Authorization: `Bearer ${token}` },
                                         });
