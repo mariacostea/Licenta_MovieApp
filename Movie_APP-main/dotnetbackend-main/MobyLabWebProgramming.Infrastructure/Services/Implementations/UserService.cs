@@ -122,7 +122,7 @@ public class UserService(
         newUser.EmailConfirmationToken = token;
         await repository.UpdateAsync(newUser, cancellationToken);
 
-        var confirmLink = $"https://licenta-frontend-r2gn.onrender/api/Authorization/ConfirmEmail?token={token}";
+        var confirmLink = $"https://licenta-backend-nf1m.onrender.com/api/Authorization/ConfirmEmail?token={token}";
         var body = $@"
             <h2>Welcome, {newUser.Name}!</h2>
             <p>Click the link below to confirm your email:</p>
