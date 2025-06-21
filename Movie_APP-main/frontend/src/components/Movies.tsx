@@ -33,7 +33,7 @@ const Movies: React.FC = () => {
         const token = localStorage.getItem("token");
         if (!token) return [];
 
-        const res  = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
+        const res  = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/watched", {
             headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json().catch(() => ({ result: [] }));
