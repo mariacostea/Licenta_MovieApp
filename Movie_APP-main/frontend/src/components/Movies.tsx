@@ -33,7 +33,7 @@ const Movies: React.FC = () => {
         const token = localStorage.getItem("token");
         if (!token) return [];
 
-        const res  = await fetch("http://localhost:5000/api/UserMovie/watched", {
+        const res  = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/watched", {
             headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json().catch(() => ({ result: [] }));
@@ -43,8 +43,8 @@ const Movies: React.FC = () => {
     const fetchPage = async (page: number, f: ActiveFilter = filter) => {
         const base =
             f && (f.year || f.genre)
-                ? "http://localhost:5000/api/movie/filter"
-                : "http://localhost:5000/api/movie/all";
+                ? "https://licenta-backend-nf1m.onrender.com/api/movie/filter"
+                : "https://licenta-backend-nf1m.onrender.com/api/movie/all";
 
         const qs = new URLSearchParams({
             page: page.toString(),
@@ -88,7 +88,7 @@ const Movies: React.FC = () => {
         try {
             const [ids, list] = await Promise.all([
                 fetchWatched(),
-                fetch(`http://localhost:5000/api/movie/search-by-title?title=${encodeURIComponent(title)}`)
+                fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/search-by-title?title=${encodeURIComponent(title)}`)
                     .then((r) => r.json())
                     .then((j) => j.result as MovieCardProps[]),
             ]);

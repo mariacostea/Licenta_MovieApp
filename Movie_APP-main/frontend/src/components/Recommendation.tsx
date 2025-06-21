@@ -20,7 +20,7 @@ const Recommendation: React.FC = () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:5000/api/Recommendations/${type}?userId=${userId}`, {
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Recommendations/${type}?userId=${userId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

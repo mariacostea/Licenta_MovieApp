@@ -11,7 +11,7 @@ const WatchedMovies: React.FC = () => {
         const token = localStorage.getItem("token");
 
         try {
-            const resIds = await fetch("http://localhost:5000/api/UserMovie/GetWatchedMovies/watched", {
+            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }

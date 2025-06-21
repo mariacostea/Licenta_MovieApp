@@ -56,17 +56,17 @@ const Feed: React.FC = () => {
 
         const headers = { Authorization: `Bearer ${token}` };
 
-        fetch(`http://localhost:5000/api/feed/watched/${userId}`, { headers })
+        fetch(`https://licenta-backend-nf1m.onrender.com/api/feed/watched/${userId}`, { headers })
             .then(res => res.json())
             .then(setWatched)
             .catch(console.error);
 
-        fetch(`http://localhost:5000/api/feed/reviews/${userId}`, { headers })
+        fetch(`https://licenta-backend-nf1m.onrender.com/api/feed/reviews/${userId}`, { headers })
             .then(res => res.json())
             .then(setReviews)
             .catch(console.error);
 
-        fetch(`http://localhost:5000/api/feed/events/${userId}`, { headers })
+        fetch(`https://licenta-backend-nf1m.onrender.com/api/feed/events/${userId}`, { headers })
             .then(res => res.json())
             .then(setEvents)
             .catch(console.error);

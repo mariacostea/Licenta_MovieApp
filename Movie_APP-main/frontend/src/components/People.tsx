@@ -15,7 +15,7 @@ interface Friendship {
 }
 
 type Tab = "all" | "pendingSent" | "pendingReceived" | "friends";
-const API = "http://localhost:5000/api";
+const API = "https://licenta-backend-nf1m.onrender.com/api";
 
 export default function People() {
     const token = localStorage.getItem("token");

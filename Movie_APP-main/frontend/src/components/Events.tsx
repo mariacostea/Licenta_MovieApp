@@ -33,10 +33,10 @@ const EventsPage: React.FC = () => {
 
     const fetchEvents = async (mode: ViewMode) => {
         setLoading(true);
-        let url = "http://localhost:5000/api/Event/unattended";
+        let url = "https://licenta-backend-nf1m.onrender.com/api/Event/unattended";
 
-        if (mode === "my") url = "http://localhost:5000/api/Event/organizer";
-        if (mode === "participation") url = "http://localhost:5000/api/Event/participant";
+        if (mode === "my") url = "https://licenta-backend-nf1m.onrender.com/api/Event/organizer";
+        if (mode === "participation") url = "https://licenta-backend-nf1m.onrender.com/api/Event/participant";
 
         try {
             const token = localStorage.getItem("token");
@@ -65,7 +65,7 @@ const EventsPage: React.FC = () => {
         if (!token) return alert("You must be logged in!");
 
         try {
-            const res = await fetch(`http://localhost:5000/api/Event/attend/${eventId}`, {
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/attend/${eventId}`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -86,7 +86,7 @@ const EventsPage: React.FC = () => {
         if (!confirmDelete) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/Event/delete/${eventId}`, {
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/delete/${eventId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -105,7 +105,7 @@ const EventsPage: React.FC = () => {
         if (!token) return alert("You must be logged in!");
 
         try {
-            const res = await fetch(`http://localhost:5000/api/Event/update/${updatedEvent.id}`, {
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/update/${updatedEvent.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -130,10 +130,10 @@ const EventsPage: React.FC = () => {
 
         switch (filterMode) {
             case "location":
-                url = `http://localhost:5000/api/Event/by-location?location=${encodeURIComponent(filterValue)}`;
+                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-location?location=${encodeURIComponent(filterValue)}`;
                 break;
             case "day":
-                url = `http://localhost:5000/api/Event/by-day?date=${filterValue}`;
+                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-day?date=${filterValue}`;
                 break;
             case "month": {
                 const [year, month] = filterValue.split("-");
@@ -142,11 +142,11 @@ const EventsPage: React.FC = () => {
                     setLoading(false);
                     return;
                 }
-                url = `http://localhost:5000/api/Event/by-month?year=${year}&month=${month}`;
+                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-month?year=${year}&month=${month}`;
                 break;
             }
             case "movie":
-                url = `http://localhost:5000/api/Event/by-movie-title?title=${encodeURIComponent(filterValue)}`;
+                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-movie-title?title=${encodeURIComponent(filterValue)}`;
                 break;
             default:
                 setLoading(false);

@@ -10,7 +10,7 @@ const Feedback = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/Feedback/submit', {
+            await axios.post('https://licenta-backend-nf1m.onrender.com/api/Feedback/submit', {
                 feedbackType,
                 rating,
                 agreeToTerms,
