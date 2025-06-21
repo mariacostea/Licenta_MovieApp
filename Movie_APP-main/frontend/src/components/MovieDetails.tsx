@@ -35,7 +35,7 @@ const MovieDetails: React.FC = () => {
 
     const fetchReviews = async (title: string, year: number) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/Review/GetByMovieTitleAndYear?title=${encodeURIComponent(title)}&year=${year}`);
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/GetByMovieTitleAndYear?title=${encodeURIComponent(title)}&year=${year}`);
             const json = await res.json();
 
             const reviewsWithOwnership = json.result.map((r: Review) => ({
@@ -64,7 +64,7 @@ const MovieDetails: React.FC = () => {
     useEffect(() => {
         if (!id) return;
         const token = localStorage.getItem("token");
-        fetch(`http://localhost:5000/api/Crew/movie/${id}`, {
+        fetch(`https://licenta-backend-nf1m.onrender.com/api/Crew/movie/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then(res => res.json())
@@ -77,7 +77,7 @@ const MovieDetails: React.FC = () => {
         if (reviews.some(r => r.isOwnReview)) return alert("You already submitted a review.");
 
         try {
-            const res = await fetch(`http://localhost:5000/api/Review/Add`, {
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Add`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -149,7 +149,7 @@ const MovieDetails: React.FC = () => {
                             <button className="btn btn-primary btn-sm me-2" onClick={async () => {
                                 const token = localStorage.getItem("token");
                                 if (!token) return;
-                                await fetch(`http://localhost:5000/api/Review/Update/${rev.id}`, {
+                                await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Update/${rev.id}`, {
                                     method: "PUT",
                                     headers: {
                                         "Content-Type": "application/json",
