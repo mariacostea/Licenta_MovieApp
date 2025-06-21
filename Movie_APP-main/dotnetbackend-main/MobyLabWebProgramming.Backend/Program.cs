@@ -5,6 +5,8 @@ using MobyLabWebProgramming.Infrastructure.Services.Implementations;
 using MobyLabWebProgramming.Infrastructure.Services.Interfaces;
 using MobyLabWebProgramming.Infrastructure.Workers;
 using MobyLabWebProgramming.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,8 @@ builder.AddCorsConfiguration()
        .AddWorkers();
 
 builder.Services.AddControllers();
+builder.Services.AddDbContext<WebAppDatabaseContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.AddApi();
 
 builder.Services.Configure<TMDBConfiguration>(builder.Configuration.GetSection("TMDB"));
@@ -61,7 +65,7 @@ var app = builder.Build();
     var db = scope.ServiceProvider.GetRequiredService<WebAppDatabaseContext>();
     var worker = new OmdbRatingWorker(db);
     await worker.RunAsync();
-}*/
+}
 
 
 
@@ -72,7 +76,7 @@ using (var scope = app.Services.CreateScope())
     await seeder.SeedGenresAndMoviesAsync();
 }
 #endregion
-
+*/
 #region Pipeline
 app.UseCors(FrontendPolicy);
 
