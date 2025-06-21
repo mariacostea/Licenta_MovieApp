@@ -11,7 +11,7 @@ const WatchedMovies: React.FC = () => {
         const token = localStorage.getItem("token");
 
         try {
-            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
+            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/watched", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -21,7 +21,7 @@ const WatchedMovies: React.FC = () => {
             const ids = jsonIds.result as string[];
             
             const moviePromises = ids.map(id =>
-                fetch(`http://localhost:5000/api/movie/${id}`)
+                fetch(`http://https://licenta-backend-nf1m.onrender.com/api/movie/${id}`)
                     .then(res => res.json())
                     .then(data => data.result as MovieCardProps)
             );
