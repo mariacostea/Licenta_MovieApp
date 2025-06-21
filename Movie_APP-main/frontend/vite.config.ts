@@ -8,6 +8,7 @@ export default defineConfig({
          Browserul trimite cereri doar la /api,
          Vite le redirecţionează, deci CORS nu mai apare   */
   server: {
+    host: '0.0.0.0',
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
