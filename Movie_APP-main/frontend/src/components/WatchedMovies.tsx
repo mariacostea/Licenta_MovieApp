@@ -21,7 +21,7 @@ const WatchedMovies: React.FC = () => {
             const ids = jsonIds.result as string[];
             
             const moviePromises = ids.map(id =>
-                fetch(`http://https://licenta-backend-nf1m.onrender.com/api/movie/${id}`)
+                fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/${id}`)
                     .then(res => res.json())
                     .then(data => data.result as MovieCardProps)
             );
