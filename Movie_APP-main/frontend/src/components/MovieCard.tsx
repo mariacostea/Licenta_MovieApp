@@ -38,7 +38,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         if (!token) return alert("You must be logged in.");
 
         try {
-            const res = await fetch("http://localhost:5000/api/UserMovie/MarkAsWatched", {
+            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/MarkAsWatched", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         }
 
         try {
-            const res = await fetch("http://localhost:5000/api/Event/create", {
+            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/Event/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
