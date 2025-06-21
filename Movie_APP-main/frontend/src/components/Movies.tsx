@@ -13,7 +13,7 @@ export interface PagedResult {
 
 type ActiveFilter = { year?: string; genre?: string } | null;
 
-const pageSize = 1;
+const pageSize = 20;
 
 const Movies: React.FC = () => {
     const [movies,        setMovies]        = useState<MovieCardProps[]>([]);
