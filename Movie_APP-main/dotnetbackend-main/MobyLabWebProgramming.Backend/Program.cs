@@ -21,7 +21,8 @@ const string FrontendPolicy = "FrontendPolicy";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(FrontendPolicy, p =>
-        p.WithOrigins("http://localhost:5173")
+        p.WithOrigins("http://localhost:5173",
+    "https://licenta-frontend-r2gn.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
