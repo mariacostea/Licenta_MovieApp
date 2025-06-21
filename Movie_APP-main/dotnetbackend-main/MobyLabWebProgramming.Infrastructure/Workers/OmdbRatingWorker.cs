@@ -21,7 +21,8 @@ public class OmdbRatingWorker
         var movies = await _db.Movies
             .Where(m => m.TmdbId == 0 && !string.IsNullOrWhiteSpace(m.Title))
             .OrderBy(m => m.Id)
-            .Take(328)
+            .Skip(3000)
+            .Take(0)
             .ToListAsync();
 
         Console.WriteLine($"[OMDb] Filme de procesat: {movies.Count}");
