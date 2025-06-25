@@ -30,24 +30,33 @@ const MapPopup: React.FC<MapPopupProps> = ({ onClose, onLocationSelect }) => {
             onLocationSelect(`Lat: ${coords.lat}, Lng: ${coords.lng}`);
         }
     };
-
+    
     return (
-        <div className="bg-white rounded shadow p-3">
-            <div className="d-flex justify-content-between mb-2">
-                <strong>Select Location</strong>
-                <button onClick={onClose} className="btn btn-sm btn-outline-secondary">Close</button>
+        <div
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+            style={{
+                backgroundColor: "rgba(0,0,0,0.5)",
+                zIndex: 1055,
+            }}
+        >
+            <div className="bg-white rounded shadow p-3" style={{ width: "90%", maxWidth: 600 }}>
+                <div className="d-flex justify-content-between mb-2">
+                    <strong>Select Location</strong>
+                    <button onClick={onClose} className="btn btn-sm btn-outline-secondary">Close</button>
+                </div>
+                <MapContainer
+                    center={[44.4328, 26.1043]}
+                    zoom={13}
+                    style={{ height: "300px", width: "100%" }}
+                >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <LocationSelector onSelect={handleSelect} />
+                    {selectedPosition && <Marker position={selectedPosition} />}
+                </MapContainer>
             </div>
-            <MapContainer
-                center={[44.4328, 26.1043]} // București default
-                zoom={13}
-                style={{ height: "300px", width: "100%" }}
-            >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <LocationSelector onSelect={handleSelect} />
-                {selectedPosition && <Marker position={selectedPosition} />}
-            </MapContainer>
         </div>
     );
+
 };
 
 export default MapPopup;

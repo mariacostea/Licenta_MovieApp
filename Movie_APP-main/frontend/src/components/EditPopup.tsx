@@ -76,17 +76,14 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                     </div>
                 </div>
 
-                {/* MAP */}
                 {showMap && (
-                    <div style={{ flexGrow: 1, minWidth: "300px", maxWidth: "600px" }}>
-                        <MapPopup
-                            onClose={() => setShowMap(false)}
-                            onLocationSelect={(loc) => {
-                                setLocation(loc);
-                                setShowMap(false);
-                            }}
-                        />
-                    </div>
+                    <MapPopup
+                        onClose={() => setShowMap(false)}
+                        onLocationSelect={(loc) => {
+                            setLocation(loc);
+                            setShowMap(false);
+                        }}
+                    />
                 )}
             </div>
         </div>
