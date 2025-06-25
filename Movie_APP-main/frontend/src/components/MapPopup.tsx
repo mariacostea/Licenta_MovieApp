@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef } from "react";
 
 interface MapPopupProps {
     anchorRef: React.RefObject<HTMLElement>;
@@ -8,21 +8,49 @@ interface MapPopupProps {
 
 const MapPopup: React.FC<MapPopupProps> = ({ anchorRef, onClose, onLocationSelect }) => {
     const popupRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({ top: 0, left: 0 });
+    const mapRef = useRef<HTMLDivElement>(null);
+    const positionRef = useRef({ top: 0, left: 0 });
 
     useEffect(() => {
         if (anchorRef.current) {
             const rect = anchorRef.current.getBoundingClientRect();
-            setPosition({
+            positionRef.current = {
                 top: rect.bottom + window.scrollY + 4,
                 left: rect.left + window.scrollX,
-            });
+            };
         }
     }, [anchorRef]);
 
-    const selectMockLocation = () => {
-        onLocationSelect("Bulevardul Nicolae Bălcescu 35, București");
-    };
+    useEffect(() => {
+        if (!mapRef.current || !window.google) return;
+
+        const defaultCoords = { lat: 44.4328, lng: 26.1043 };
+        const map = new google.maps.Map(mapRef.current, {
+            center: defaultCoords,
+            zoom: 12,
+        });
+
+        const marker = new google.maps.Marker({
+            position: defaultCoords,
+            map,
+        });
+
+        map.addListener("click", (e: google.maps.MapMouseEvent) => {
+            const latLng = e.latLng;
+            if (!latLng) return;
+
+            marker.setPosition(latLng);
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: latLng }, (results, status) => {
+                if (status === "OK" && results && results[0]) {
+                    onLocationSelect(results[0].formatted_address);
+                } else {
+                    onLocationSelect(`Lat: ${latLng.lat()}, Lng: ${latLng.lng()}`);
+                }
+            });
+        });
+    }, []);
 
     return (
         <div
@@ -30,11 +58,11 @@ const MapPopup: React.FC<MapPopupProps> = ({ anchorRef, onClose, onLocationSelec
             className="rounded shadow"
             style={{
                 position: "absolute",
-                top: position.top,
-                left: position.left,
+                top: positionRef.current.top,
+                left: positionRef.current.left,
                 zIndex: 2000,
                 width: 400,
-                height: 300,
+                height: 320,
                 backgroundColor: "white",
                 padding: "1rem",
                 boxShadow: "0 0 10px rgba(0,0,0,0.3)",
@@ -45,22 +73,9 @@ const MapPopup: React.FC<MapPopupProps> = ({ anchorRef, onClose, onLocationSelec
                 <button onClick={onClose} className="btn btn-sm btn-outline-secondary">Close</button>
             </div>
 
-            <div className="mb-2" style={{ height: "200px", background: "#eee" }}>
-                <iframe
-                    title="Map"
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    src={`https://maps.google.com/maps?q=Bucuresti&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                    allowFullScreen
-                />
-            </div>
-
-            <button className="btn btn-primary w-100" onClick={selectMockLocation}>
-                Selectează această locație
-            </button>
+            <div ref={mapRef} style={{ height: 240, width: "100%", borderRadius: 8 }} />
         </div>
     );
 };
 
-export default MapPopup;  
+export default MapPopup;
