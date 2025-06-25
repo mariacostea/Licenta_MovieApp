@@ -1,67 +1,51 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useState } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 interface MapPopupProps {
-    anchorRef: React.RefObject<HTMLElement>;
     onClose: () => void;
     onLocationSelect: (location: string) => void;
 }
 
-const MapPopup: React.FC<MapPopupProps> = ({ anchorRef, onClose, onLocationSelect }) => {
-    const popupRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({ top: 0, left: 0 });
-    const [mapKey, setMapKey] = useState(0);
+const LocationSelector: React.FC<{ onSelect: (coords: L.LatLng) => void }> = ({ onSelect }) => {
+    useMapEvents({
+        click(e) {
+            onSelect(e.latlng);
+        },
+    });
+    return null;
+};
 
-    useEffect(() => {
-        if (anchorRef.current) {
-            const rect = anchorRef.current.getBoundingClientRect();
-            setPosition({
-                top: rect.bottom + window.scrollY + 8,
-                left: rect.left + window.scrollX,
-            });
+const MapPopup: React.FC<MapPopupProps> = ({ onClose, onLocationSelect }) => {
+    const [selectedPosition, setSelectedPosition] = useState<L.LatLng | null>(null);
+
+    const handleSelect = async (coords: L.LatLng) => {
+        setSelectedPosition(coords);
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`);
+            const data = await res.json();
+            onLocationSelect(data.display_name || `Lat: ${coords.lat}, Lng: ${coords.lng}`);
+        } catch {
+            onLocationSelect(`Lat: ${coords.lat}, Lng: ${coords.lng}`);
         }
-        setMapKey((prev) => prev + 1);
-    }, [anchorRef]);
-
-    const selectMockLocation = () => {
-        onLocationSelect("Bulevardul Nicolae Bălcescu 35, București");
     };
 
     return (
-        <div
-            ref={popupRef}
-            className="rounded shadow"
-            style={{
-                position: "absolute",
-                top: position.top,
-                left: position.left,
-                zIndex: 3000,
-                width: 400,
-                height: 300,
-                backgroundColor: "white",
-                padding: "1rem",
-                boxShadow: "0 0 10px rgba(0,0,0,0.3)"
-            }}
-        >
-            <div className="d-flex justify-content-between align-items-center mb-2">
+        <div className="bg-white rounded shadow p-3">
+            <div className="d-flex justify-content-between mb-2">
                 <strong>Select Location</strong>
                 <button onClick={onClose} className="btn btn-sm btn-outline-secondary">Close</button>
             </div>
-
-            <div className="mb-2" style={{ height: "200px", background: "#eee" }}>
-                <iframe
-                    key={mapKey}
-                    title="Map"
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=26.09%2C44.42%2C26.12%2C44.44&layer=mapnik"
-                    allowFullScreen
-                />
-            </div>
-
-            <button className="btn btn-primary w-100" onClick={selectMockLocation}>
-                Selectează această locație
-            </button>
+            <MapContainer
+                center={[44.4328, 26.1043]} // București default
+                zoom={13}
+                style={{ height: "300px", width: "100%" }}
+            >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <LocationSelector onSelect={handleSelect} />
+                {selectedPosition && <Marker position={selectedPosition} />}
+            </MapContainer>
         </div>
     );
 };

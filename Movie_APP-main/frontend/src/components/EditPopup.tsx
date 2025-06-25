@@ -17,30 +17,26 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
     const [maxParticipants, setMaxParticipants] = useState(event.maxParticipants);
     const [showMap, setShowMap] = useState(false);
 
-    const locationRef = useRef<HTMLInputElement>(null);
     const minDate = new Date();
     minDate.setDate(minDate.getDate() + 2);
 
     return (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75" style={{ zIndex: 1050 }}>
-            <div className="bg-white text-dark p-4 rounded d-flex gap-4 align-items-start" style={{ maxWidth: "90vw", overflow: "auto" }}>
-                {/* Form */}
+            <div className="bg-white text-dark p-4 rounded d-flex gap-4 flex-wrap justify-content-center" style={{ maxWidth: "95vw", overflowY: "auto" }}>
+                {/* FORM */}
                 <div style={{ minWidth: 300, maxWidth: 400 }}>
                     <h5 className="mb-3">Edit Event</h5>
                     <input className="form-control mb-2" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" />
                     <textarea className="form-control mb-2" value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" />
                     <p className="mb-2"><strong>🎮 Movie:</strong> {event.movieTitle ?? "Unknown"}</p>
 
-                    <div>
-                        <input
-                            ref={locationRef}
-                            className="form-control mb-2"
-                            value={location}
-                            placeholder="Click to choose location"
-                            onClick={() => setShowMap(true)}
-                            readOnly
-                        />
-                    </div>
+                    <input
+                        className="form-control mb-2"
+                        value={location}
+                        placeholder="Click to choose location"
+                        onClick={() => setShowMap(true)}
+                        readOnly
+                    />
 
                     <DatePicker
                         selected={date}
@@ -80,16 +76,17 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                     </div>
                 </div>
 
-                {/* Map inline */}
+                {/* MAP */}
                 {showMap && (
-                    <MapPopup
-                        anchorRef={locationRef}
-                        onClose={() => setShowMap(false)}
-                        onLocationSelect={(loc) => {
-                            setLocation(loc);
-                            setShowMap(false);
-                        }}
-                    />
+                    <div style={{ flexGrow: 1, minWidth: "300px", maxWidth: "600px" }}>
+                        <MapPopup
+                            onClose={() => setShowMap(false)}
+                            onLocationSelect={(loc) => {
+                                setLocation(loc);
+                                setShowMap(false);
+                            }}
+                        />
+                    </div>
                 )}
             </div>
         </div>
