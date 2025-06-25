@@ -2,7 +2,6 @@
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import MapPopup from "./MapPopup";
 
 export interface MovieCardProps {
     id: string;
@@ -26,8 +25,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
     const [eventDate, setEventDate] = useState<Date | null>(null);
     const [eventParticipants, setEventParticipants] = useState(1);
     const [eventDescription, setEventDescription] = useState("");
-    const [showMapPopup, setShowMapPopup] = useState(false);
-    const cardRef = useRef<HTMLDivElement>(null);
+    const mapRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsWatched(initialIsWatched ?? false);
@@ -87,102 +85,121 @@ const MovieCard: React.FC<MovieCardProps> = ({
             alert((err as Error).message);
         }
     };
-    
+
     const minDate = new Date();
     minDate.setDate(minDate.getDate() + 2);
 
+    useEffect(() => {
+        if (!showEventForm || !mapRef.current || !window.google) return;
+
+        const defaultCoords = { lat: 44.4328, lng: 26.1043 };
+
+        const map = new google.maps.Map(mapRef.current, {
+            center: defaultCoords,
+            zoom: 12,
+        });
+
+        const marker = new google.maps.Marker({
+            position: defaultCoords,
+            map,
+        });
+
+        map.addListener("click", async (e: google.maps.MapMouseEvent) => {
+            const latLng = e.latLng;
+            if (!latLng) return;
+
+            marker.setPosition(latLng);
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: latLng }, (results, status) => {
+                if (status === "OK" && results && results[0]) {
+                    setEventLocation(results[0].formatted_address);
+                } else {
+                    setEventLocation(`Lat: ${latLng.lat()}, Lng: ${latLng.lng()}`);
+                }
+            });
+        });
+    }, [showEventForm]);
+
     return (
-        <>
-            <div className="card h-100 text-white bg-dark border-secondary" ref={cardRef}>
-                <img
-                    src={posterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
-                    alt={title}
-                    className="card-img-top object-fit-cover"
-                    style={{ height: 300 }}
-                />
-                <div className="card-body">
-                    <h5 className="card-title">{title}</h5>
-                    <p className="card-text mb-1">{year ?? "—"} • {genres.join(", ")}</p>
-                    <p className="card-text">⭐ {averageRating.toFixed(1)}</p>
+        <div className="card h-100 text-white bg-dark border-secondary">
+            <img
+                src={posterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
+                alt={title}
+                className="card-img-top object-fit-cover"
+                style={{ height: 300 }}
+            />
+            <div className="card-body">
+                <h5 className="card-title">{title}</h5>
+                <p className="card-text mb-1">{year ?? "—"} • {genres.join(", ")}</p>
+                <p className="card-text">⭐ {averageRating.toFixed(1)}</p>
 
-                    <div className="d-flex gap-2 mt-2">
-                        <button className="btn btn-outline-info btn-sm" onClick={() => navigate(`/movies/${id}`)}>Details</button>
-                        <button
-                            className={`btn btn-sm ${isWatched ? "btn-success" : "btn-outline-success"}`}
-                            onClick={markAsWatched}
-                            disabled={isWatched}
-                        >
-                            {isWatched ? "Watched" : "Mark as Watched"}
-                        </button>
-                        <button className="btn btn-outline-warning btn-sm" onClick={() => setShowEventForm(!showEventForm)}>
-                            Create Event
-                        </button>
-                    </div>
-
-                    {showEventForm && (
-                        <div className="mt-3 border-top pt-3">
-                            <h6>Create Event</h6>
-
-                            <label className="form-label">Date & Time</label>
-                            <DatePicker
-                                selected={eventDate}
-                                onChange={(date) => setEventDate(date)}
-                                showTimeSelect
-                                dateFormat="MMMM d, yyyy h:mm aa"
-                                timeIntervals={15}
-                                timeCaption="Time"
-                                minDate={minDate}
-                                className="form-control mb-2"
-                                placeholderText="Click to select date and time"
-                            />
-
-                            <label className="form-label">Location</label>
-                            <input
-                                type="text"
-                                className="form-control mb-2"
-                                value={eventLocation}
-                                placeholder="Click to select location"
-                                onClick={() => setShowMapPopup(true)}
-                                onFocus={() => !eventLocation && setShowMapPopup(true)}
-                                readOnly
-                            />
-
-                            <label className="form-label">Max Participants</label>
-                            <input
-                                type="number"
-                                className="form-control mb-2"
-                                value={eventParticipants}
-                                min={1}
-                                onChange={(e) => setEventParticipants(Math.max(1, Number(e.target.value)))}
-                            />
-
-                            <label className="form-label">Description</label>
-                            <textarea
-                                className="form-control mb-2"
-                                value={eventDescription}
-                                onChange={(e) => setEventDescription(e.target.value)}
-                            />
-
-                            <div className="d-flex justify-content-between">
-                                <button className="btn btn-secondary" onClick={() => setShowEventForm(false)}>Cancel</button>
-                                <button className="btn btn-primary" onClick={createEvent}>Submit Event</button>
-                            </div>
-                        </div>
-                    )}
+                <div className="d-flex gap-2 mt-2">
+                    <button className="btn btn-outline-info btn-sm" onClick={() => navigate(`/movies/${id}`)}>Details</button>
+                    <button
+                        className={`btn btn-sm ${isWatched ? "btn-success" : "btn-outline-success"}`}
+                        onClick={markAsWatched}
+                        disabled={isWatched}
+                    >
+                        {isWatched ? "Watched" : "Mark as Watched"}
+                    </button>
+                    <button className="btn btn-outline-warning btn-sm" onClick={() => setShowEventForm(!showEventForm)}>
+                        Create Event
+                    </button>
                 </div>
-            </div>
 
-            {showMapPopup && (
-                <MapPopup
-                    anchorRef={cardRef}
-                    onClose={() => setShowMapPopup(false)}
-                    onLocationSelect={(location) => {
-                        setEventLocation(location);
-                        setShowMapPopup(false);
-                    }}
-                />
-            )}
-        </>
+                {showEventForm && (
+                    <div className="mt-3 border-top pt-3">
+                        <h6>Create Event</h6>
+
+                        <label className="form-label">Date & Time</label>
+                        <DatePicker
+                            selected={eventDate}
+                            onChange={(date) => setEventDate(date)}
+                            showTimeSelect
+                            dateFormat="MMMM d, yyyy h:mm aa"
+                            timeIntervals={15}
+                            timeCaption="Time"
+                            minDate={minDate}
+                            className="form-control mb-2"
+                            placeholderText="Click to select date and time"
+                        />
+
+                        <label className="form-label">Location</label>
+                        <input
+                            type="text"
+                            className="form-control mb-2"
+                            value={eventLocation}
+                            readOnly
+                            placeholder="Click on the map to select location"
+                        />
+
+                        <div ref={mapRef} style={{ width: "100%", height: 300, borderRadius: 8, marginBottom: 10 }} />
+
+                        <label className="form-label">Max Participants</label>
+                        <input
+                            type="number"
+                            className="form-control mb-2"
+                            value={eventParticipants}
+                            min={1}
+                            onChange={(e) => setEventParticipants(Math.max(1, Number(e.target.value)))}
+                        />
+
+                        <label className="form-label">Description</label>
+                        <textarea
+                            className="form-control mb-2"
+                            value={eventDescription}
+                            onChange={(e) => setEventDescription(e.target.value)}
+                        />
+
+                        <div className="d-flex justify-content-between">
+                            <button className="btn btn-secondary" onClick={() => setShowEventForm(false)}>Cancel</button>
+                            <button className="btn btn-primary" onClick={createEvent}>Submit Event</button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
     );
 };
 
