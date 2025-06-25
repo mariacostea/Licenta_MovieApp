@@ -30,20 +30,36 @@ const MapPopup: React.FC<MapPopupProps> = ({ onClose, onLocationSelect }) => {
             onLocationSelect(`Lat: ${coords.lat}, Lng: ${coords.lng}`);
         }
     };
-    
+
     return (
         <div
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
             style={{
-                backgroundColor: "rgba(0,0,0,0.5)",
-                zIndex: 1055,
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                zIndex: 2000,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
             }}
         >
-            <div className="bg-white rounded shadow p-3" style={{ width: "90%", maxWidth: 600 }}>
-                <div className="d-flex justify-content-between mb-2">
+            <div
+                style={{
+                    background: "white",
+                    padding: "1rem",
+                    borderRadius: "10px",
+                    width: "90%",
+                    maxWidth: "600px",
+                }}
+            >
+                <div className="d-flex justify-content-between align-items-center mb-2">
                     <strong>Select Location</strong>
                     <button onClick={onClose} className="btn btn-sm btn-outline-secondary">Close</button>
                 </div>
+
                 <MapContainer
                     center={[44.4328, 26.1043]}
                     zoom={13}
@@ -56,7 +72,6 @@ const MapPopup: React.FC<MapPopupProps> = ({ onClose, onLocationSelect }) => {
             </div>
         </div>
     );
-
 };
 
 export default MapPopup;
