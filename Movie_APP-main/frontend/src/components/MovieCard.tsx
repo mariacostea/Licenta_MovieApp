@@ -27,10 +27,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
     const [eventParticipants, setEventParticipants] = useState(1);
     const [eventDescription, setEventDescription] = useState("");
     const [showMapPopup, setShowMapPopup] = useState(false);
-
-    const locationInputRef = useRef<HTMLInputElement>(null);
-    const minDate = new Date();
-    minDate.setDate(minDate.getDate() + 2);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsWatched(initialIsWatched ?? false);
@@ -61,6 +58,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
     const createEvent = async () => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in.");
+
         if (!eventDate || !eventLocation.trim()) {
             return alert("Complete all fields, including a valid location and future date.");
         }
@@ -89,10 +87,13 @@ const MovieCard: React.FC<MovieCardProps> = ({
             alert((err as Error).message);
         }
     };
+    
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 2);
 
     return (
         <>
-            <div className="card h-100 text-white bg-dark border-secondary">
+            <div className="card h-100 text-white bg-dark border-secondary" ref={cardRef}>
                 <img
                     src={posterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
                     alt={title}
@@ -137,12 +138,12 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
                             <label className="form-label">Location</label>
                             <input
-                                ref={locationInputRef}
                                 type="text"
                                 className="form-control mb-2"
                                 value={eventLocation}
                                 placeholder="Click to select location"
                                 onClick={() => setShowMapPopup(true)}
+                                onFocus={() => !eventLocation && setShowMapPopup(true)}
                                 readOnly
                             />
 
@@ -173,10 +174,10 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
             {showMapPopup && (
                 <MapPopup
-                    anchorRef={locationInputRef}
+                    anchorRef={cardRef}
                     onClose={() => setShowMapPopup(false)}
-                    onLocationSelect={(loc) => {
-                        setEventLocation(loc);
+                    onLocationSelect={(location) => {
+                        setEventLocation(location);
                         setShowMapPopup(false);
                     }}
                 />
