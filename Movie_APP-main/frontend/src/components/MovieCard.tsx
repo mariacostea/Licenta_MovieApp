@@ -174,7 +174,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
             {showMapPopup && (
                 <MapPopup
-                    anchorRef={cardRef}
                     onClose={() => setShowMapPopup(false)}
                     onLocationSelect={(location) => {
                         setEventLocation(location);
