@@ -78,6 +78,7 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                         className="btn btn-primary"
                         onClick={() =>
                             onSave({
+                                ...event,
                                 title,
                                 description,
                                 location,
