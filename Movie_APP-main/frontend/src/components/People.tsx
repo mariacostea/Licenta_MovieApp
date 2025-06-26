@@ -100,11 +100,8 @@ export default function People() {
 
     return (
         <div style={{ padding: 24 }}>
-            <div
-                className="bg-dark py-2 border-bottom position-sticky top-0 z-3"
-                style={{ zIndex: 1040 }}
-            >
-                <div className="container d-flex justify-content-center gap-3">
+            <div className="bg-dark py-2 border-bottom position-sticky top-0 w-100" style={{ zIndex: 1040 }}>
+                <div className="d-flex justify-content-center gap-3 px-3">
                     <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                     <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
