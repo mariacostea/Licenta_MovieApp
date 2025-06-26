@@ -41,12 +41,17 @@ const Recommendation: React.FC = () => {
     }, [type]);
 
     return (
-        <div className="container mt-4">
+        <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
             <div
-                className="bg-dark py-2 border-bottom position-sticky top-0 z-3"
-                style={{ zIndex: 1040 }}
+                className="bg-dark py-3 border-bottom shadow"
+                style={{
+                    position: "sticky",
+                    top: 0,
+                    width: "100%",
+                    zIndex: 1050,
+                }}
             >
-                <div className="container d-flex justify-content-center gap-3">
+                <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
                     <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                     <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
