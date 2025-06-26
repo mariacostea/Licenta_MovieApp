@@ -73,12 +73,17 @@ const Feed: React.FC = () => {
     }, [token, userId]);
 
     return (
-        <div className="container py-4 text-white">
+        <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
             <div
-                className="bg-dark py-2 border-bottom position-sticky top-0 z-3"
-                style={{ zIndex: 1040 }}
+                className="bg-dark py-3 border-bottom shadow"
+                style={{
+                    position: "sticky",
+                    top: 0,
+                    width: "100%",
+                    zIndex: 1050,
+                }}
             >
-                <div className="container d-flex justify-content-center gap-3">
+                <div className="container py-4 text-white">
                     <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                     <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>

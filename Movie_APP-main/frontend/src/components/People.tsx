@@ -99,7 +99,6 @@ export default function People() {
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            {/* Navigation Bar Full Width */}
             <div
                 className="bg-dark py-3 border-bottom shadow"
                 style={{
