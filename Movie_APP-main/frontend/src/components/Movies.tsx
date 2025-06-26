@@ -133,7 +133,7 @@ const Movies: React.FC = () => {
                         onClick={() => {
                             localStorage.removeItem('token');
                             localStorage.removeItem('userId');
-                            window.location.href = '/login'; // sau navigate('/login') dacă ești în componentă cu `useNavigate`
+                            window.location.href = '/login';
                         }}
                     >
                         🚪 Logout

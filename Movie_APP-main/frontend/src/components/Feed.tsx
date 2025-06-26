@@ -74,6 +74,27 @@ const Feed: React.FC = () => {
 
     return (
         <div className="container py-4 text-white">
+            <div
+                className="bg-dark py-2 border-bottom position-sticky top-0 z-3"
+                style={{ zIndex: 1040 }}
+            >
+                <div className="container d-flex justify-content-center gap-3">
+                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
+                    <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
+                    <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
+                    <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
+                    <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('userId');
+                            window.location.href = '/login';
+                        }}
+                    >
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>    
             <h2 className="mb-4">📰 Feed</h2>
 
             <div className="btn-group mb-4">

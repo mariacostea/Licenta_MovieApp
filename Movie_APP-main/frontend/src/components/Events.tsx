@@ -173,6 +173,28 @@ const EventsPage: React.FC = () => {
 
     return (
         <div className="container mt-4">
+            <div
+                className="bg-dark py-2 border-bottom position-sticky top-0 z-3"
+                style={{ zIndex: 1040 }}
+            >
+                <div className="container d-flex justify-content-center gap-3">
+                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
+                    <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
+                    <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
+                    <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
+                    <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('userId');
+                            window.location.href = '/login';
+                        }}
+                    >
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+            
             <h2>🗓️Events</h2>
 
             <div className="btn-group mb-4">
