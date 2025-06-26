@@ -119,6 +119,18 @@ const Movies: React.FC = () => {
 
     return (
         <>
+            <div
+                className="bg-dark py-2 border-bottom position-sticky top-0 z-3"
+                style={{ zIndex: 1040 }}
+            >
+                <div className="container d-flex justify-content-center gap-3">
+                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
+                    <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
+                    <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
+                    <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
+                    <a href="/logout" className="btn btn-outline-danger btn-sm">🚪 Logout</a>
+                </div>
+            </div>
             <NavigationBar onSearch={searchMovie} />
 
             <div className="container-fluid py-4 text-white">
