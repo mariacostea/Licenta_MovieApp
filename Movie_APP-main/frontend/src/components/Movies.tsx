@@ -128,7 +128,16 @@ const Movies: React.FC = () => {
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                     <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
                     <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
-                    <a href="/logout" className="btn btn-outline-danger btn-sm">🚪 Logout</a>
+                    <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('userId');
+                            window.location.href = '/login'; // sau navigate('/login') dacă ești în componentă cu `useNavigate`
+                        }}
+                    >
+                        🚪 Logout
+                    </button>
                 </div>
             </div>
             <NavigationBar onSearch={searchMovie} />
