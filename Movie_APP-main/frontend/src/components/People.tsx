@@ -32,14 +32,13 @@ export default function People() {
     const [users, setUsers] = useState<User[]>([]);
     const [pendingSent, setPendingSent] = useState<User[]>([]);
     const [friends, setFriends] = useState<User[]>([]);
-    const [pendingReceived, setPendingReceived] = useState<Friendship[]>([]); // Important
+    const [pendingReceived, setPendingReceived] = useState<Friendship[]>([]);
 
     const fetchUsers = async (url: string, setter: Function, label: string) => {
         try {
             const res = await fetch(url, { headers: auth });
             const json = await res.json();
             const list = Array.isArray(json) ? json : json.response ?? json.result ?? [];
-            console.log(`Loaded ${label}:`, list);
             setter(list);
         } catch (err) {
             console.error(`Error loading ${label}`, err);
@@ -99,9 +98,18 @@ export default function People() {
         pendingReceived.some((f) => f.requesterId === id);
 
     return (
-        <div style={{ padding: 24 }}>
-            <div className="bg-dark py-2 border-bottom position-sticky top-0 w-100" style={{ zIndex: 1040 }}>
-                <div className="d-flex justify-content-center gap-3 px-3">
+        <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
+            {/* Navigation Bar Full Width */}
+            <div
+                className="bg-dark py-3 border-bottom shadow"
+                style={{
+                    position: "sticky",
+                    top: 0,
+                    width: "100%",
+                    zIndex: 1050,
+                }}
+            >
+                <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
                     <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                     <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
@@ -109,37 +117,38 @@ export default function People() {
                     <button
                         className="btn btn-outline-danger btn-sm"
                         onClick={() => {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('userId');
-                            window.location.href = '/login';
+                            localStorage.removeItem("token");
+                            localStorage.removeItem("userId");
+                            window.location.href = "/login";
                         }}
                     >
                         🚪 Logout
                     </button>
                 </div>
             </div>
-            <h2>👥 People</h2>
-            <div className="btn-group mb-3">
-                <button className={`btn btn-outline-primary ${tab === "all" && "active"}`} onClick={() => setTab("all")}>
-                    All Users
-                </button>
-                <button className={`btn btn-outline-warning ${tab === "pendingSent" && "active"}`} onClick={() => setTab("pendingSent")}>
-                    Sent Requests
-                </button>
-                <button className={`btn btn-outline-info ${tab === "pendingReceived" && "active"}`} onClick={() => setTab("pendingReceived")}>
-                    Received Requests
-                </button>
-                <button className={`btn btn-outline-success ${tab === "friends" && "active"}`} onClick={() => setTab("friends")}>
-                    Friends
-                </button>
-            </div>
 
-            <ul>
-                {tab === "all" &&
-                    users
-                        .filter((u) => !isKnown(u.id))
-                        .map((u) => (
-                            <li key={u.id}>
+            <div className="container py-4">
+                <h2 className="mb-4">👥 People</h2>
+
+                <div className="btn-group mb-4">
+                    <button className={`btn btn-outline-primary ${tab === "all" && "active"}`} onClick={() => setTab("all")}>
+                        All Users
+                    </button>
+                    <button className={`btn btn-outline-warning ${tab === "pendingSent" && "active"}`} onClick={() => setTab("pendingSent")}>
+                        Sent Requests
+                    </button>
+                    <button className={`btn btn-outline-info ${tab === "pendingReceived" && "active"}`} onClick={() => setTab("pendingReceived")}>
+                        Received Requests
+                    </button>
+                    <button className={`btn btn-outline-success ${tab === "friends" && "active"}`} onClick={() => setTab("friends")}>
+                        Friends
+                    </button>
+                </div>
+
+                <ul className="list-unstyled">
+                    {tab === "all" &&
+                        users.filter((u) => !isKnown(u.id)).map((u) => (
+                            <li key={u.id} className="mb-2">
                                 {u.name}{" "}
                                 <button className="btn btn-sm btn-primary" onClick={() => sendRequest(u.id)}>
                                     Add Friend
@@ -147,37 +156,38 @@ export default function People() {
                             </li>
                         ))}
 
-                {tab === "pendingSent" &&
-                    (pendingSent.length > 0 ? (
-                        pendingSent.map((u) => <li key={u.id}>{u.name} (Pending)</li>)
-                    ) : (
-                        <li>No pending sent requests</li>
-                    ))}
+                    {tab === "pendingSent" &&
+                        (pendingSent.length > 0 ? (
+                            pendingSent.map((u) => <li key={u.id}>{u.name} (Pending)</li>)
+                        ) : (
+                            <li>No pending sent requests</li>
+                        ))}
 
-                {tab === "pendingReceived" &&
-                    (pendingReceived.length > 0 ? (
-                        pendingReceived.map((f) => (
-                            <li key={f.id}>
-                                {f.requesterName}{" "}
-                                <button className="btn btn-sm btn-success me-1" onClick={() => acceptRequest(f.id)}>
-                                    Accept
-                                </button>
-                                <button className="btn btn-sm btn-danger" onClick={() => rejectRequest(f.id)}>
-                                    Reject
-                                </button>
-                            </li>
-                        ))
-                    ) : (
-                        <li>No received friend requests</li>
-                    ))}
+                    {tab === "pendingReceived" &&
+                        (pendingReceived.length > 0 ? (
+                            pendingReceived.map((f) => (
+                                <li key={f.id}>
+                                    {f.requesterName}{" "}
+                                    <button className="btn btn-sm btn-success me-1" onClick={() => acceptRequest(f.id)}>
+                                        Accept
+                                    </button>
+                                    <button className="btn btn-sm btn-danger" onClick={() => rejectRequest(f.id)}>
+                                        Reject
+                                    </button>
+                                </li>
+                            ))
+                        ) : (
+                            <li>No received friend requests</li>
+                        ))}
 
-                {tab === "friends" &&
-                    (friends.length > 0 ? (
-                        friends.map((u) => <li key={u.id}>{u.name}</li>)
-                    ) : (
-                        <li>No friends</li>
-                    ))}
-            </ul>
+                    {tab === "friends" &&
+                        (friends.length > 0 ? (
+                            friends.map((u) => <li key={u.id}>{u.name}</li>)
+                        ) : (
+                            <li>No friends</li>
+                        ))}
+                </ul>
+            </div>
         </div>
     );
 }
