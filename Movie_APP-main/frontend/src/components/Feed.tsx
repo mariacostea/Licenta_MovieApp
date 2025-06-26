@@ -83,7 +83,7 @@ const Feed: React.FC = () => {
                     zIndex: 1050,
                 }}
             >
-                <div className="container py-4 text-white">
+                <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
                     <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                     <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
