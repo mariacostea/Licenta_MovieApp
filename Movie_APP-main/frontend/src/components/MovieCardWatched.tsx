@@ -25,7 +25,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
         if (!token) return alert("You must be logged in.");
 
         try {
-            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/recommend", {
+            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/MarkAsRecommended/recommend", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
