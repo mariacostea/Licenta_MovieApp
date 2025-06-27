@@ -85,4 +85,67 @@ public class UserMovieController : ControllerBase
         return Ok(ServiceResponse.ForSuccess(watchedMovieIds));
     }
     
+    [HttpPost("recommend")]
+    [Authorize]
+    public async Task<IActionResult> MarkAsRecommended([FromBody] MovieDTO movieDto)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(movieDto.Title) || movieDto.Year is null)
+            {
+                return BadRequest(ServiceResponse.FromError(new ErrorMessage(
+                    HttpStatusCode.BadRequest,
+                    "Titlul și anul filmului trebuie specificate.",
+                    ErrorCodes.InvalidValue)));
+            }
+
+            var movie = await _movieService.GetMovieByTitleAsync(movieDto.Title, movieDto.Year.Value);
+
+            if (movie == null)
+            {
+                return NotFound(ServiceResponse.FromError(new ErrorMessage(
+                    HttpStatusCode.NotFound,
+                    "Filmul nu există în baza de date.",
+                    ErrorCodes.EntityNotFound)));
+            }
+
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var existing = await _userMovieRepo.GetAsQueryable<UserMovie>()
+                .FirstOrDefaultAsync(um => um.UserId == userId && um.MovieId == movie.Id);
+
+            if (existing is null || !existing.IsWatched)
+            {
+                return BadRequest(ServiceResponse.FromError(new ErrorMessage(
+                    HttpStatusCode.BadRequest,
+                    "Poți recomanda un film doar dacă l-ai vizionat deja.",
+                    ErrorCodes.EntityNotFound)));
+            }
+
+            existing.IsRecommended = true;
+            await _userMovieRepo.UpdateAsync(existing);
+
+            return Ok(ServiceResponse.ForSuccess(new { message = "Filmul a fost recomandat.", movieId = movie.Id }));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode((int)HttpStatusCode.InternalServerError, ServiceResponse.FromError(
+                new ErrorMessage(HttpStatusCode.InternalServerError, $"Eroare: {ex.Message}", ErrorCodes.TechnicalError)));
+        }
+    }
+
+    [HttpGet("recommended")]
+    [Authorize]
+    public async Task<IActionResult> GetRecommendedMovies()
+    {
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+        var recommendedMovieIds = await _userMovieRepo.GetAsQueryable<UserMovie>()
+            .Where(um => um.UserId == userId && um.IsRecommended)
+            .Select(um => um.MovieId)
+            .ToListAsync();
+
+        return Ok(ServiceResponse.ForSuccess(recommendedMovieIds));
+    }
+    
 }

@@ -2,16 +2,16 @@
 import NavigationBar from "./NavigationBar";
 import MovieCardWatched, { MovieCardProps } from "./MovieCardWatched";
 
-const WatchedMovies: React.FC = () => {
+const RecommendedMovies: React.FC = () => {
     const [movies, setMovies] = useState<MovieCardProps[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const loadWatchedMovies = async () => {
+    const loadRecommendedMovies = async () => {
         setLoading(true);
         const token = localStorage.getItem("token");
 
         try {
-            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
+            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetRecommendedMovies", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -30,15 +30,15 @@ const WatchedMovies: React.FC = () => {
 
             setMovies(movieData);
         } catch (err) {
-            console.error("Error loading watched movies:", err);
-            alert("Error loading watched movies!");
+            console.error("Error loading recommended movies:", err);
+            alert("Error loading recommended movies!");
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        loadWatchedMovies();
+        loadRecommendedMovies();
     }, []);
 
     return (
@@ -46,17 +46,17 @@ const WatchedMovies: React.FC = () => {
             <NavigationBar onSearch={() => {}} />
 
             <div className="container py-4 text-white">
-                <h1>Watched Movies</h1>
+                <h1>Recommended Movies</h1>
 
                 {loading && <p>Loading...</p>}
 
-                {!loading && movies.length === 0 && <p>No watched movies found.</p>}
+                {!loading && movies.length === 0 && <p>No recommended movies yet.</p>}
 
                 {!loading && (
                     <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                         {movies.map((m) => (
                             <div className="col" key={m.id}>
-                                <MovieCardWatched {...m} isRecommended={false} />
+                                <MovieCardWatched {...m} isRecommended={true} />
                             </div>
                         ))}
                     </div>
@@ -66,4 +66,4 @@ const WatchedMovies: React.FC = () => {
     );
 };
 
-export default WatchedMovies;
+export default RecommendedMovies;

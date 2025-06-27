@@ -125,5 +125,5 @@ public sealed class MovieService : IMovieService
     {
         return await _movieRepo.GetAsync(new MovieProjectionByIdSpec(id));
     }
-
+    
 }

@@ -20,7 +20,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ onSearch }) => {
                 <input name="search" type="text" placeholder="Search title..." className="form-control me-2" />
                 <button type="submit" className="btn btn-success">Search</button>
             </form>
-            <Link to="/watched" className="btn btn-warning ms-3">Watched Movies</Link>
+            <div className="d-flex gap-2 ms-3">
+                <Link to="/watched" className="btn btn-warning">Watched Movies</Link>
+                <Link to="/recommended" className="btn btn-info">Recommended Movies</Link>
+            </div>
         </nav>
     );
 };

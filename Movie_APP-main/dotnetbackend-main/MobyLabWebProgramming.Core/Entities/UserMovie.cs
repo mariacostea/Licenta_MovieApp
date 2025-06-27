@@ -13,6 +13,7 @@ namespace MobyLabWebProgramming.Core.Entities
 
         public bool IsWatched { get; set; }
         public DateTime WatchedOn { get; set; }
+        public bool IsRecommended { get; set; }
     }
 
 }
