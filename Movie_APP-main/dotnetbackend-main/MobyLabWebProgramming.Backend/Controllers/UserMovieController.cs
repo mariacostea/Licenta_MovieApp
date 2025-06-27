@@ -84,9 +84,11 @@ public class UserMovieController : ControllerBase
 
         return Ok(ServiceResponse.ForSuccess(watchedMovieIds));
     }
-    
+
     [HttpPost("recommend")]
     [Authorize]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     public async Task<IActionResult> MarkAsRecommended([FromBody] MovieDTO movieDto)
     {
         try
@@ -119,7 +121,7 @@ public class UserMovieController : ControllerBase
                 return BadRequest(ServiceResponse.FromError(new ErrorMessage(
                     HttpStatusCode.BadRequest,
                     "Poți recomanda un film doar dacă l-ai vizionat deja.",
-                    ErrorCodes.EntityNotFound)));
+                    ErrorCodes.CannotUpdate)));
             }
 
             existing.IsRecommended = true;
@@ -147,5 +149,4 @@ public class UserMovieController : ControllerBase
 
         return Ok(ServiceResponse.ForSuccess(recommendedMovieIds));
     }
-    
 }
