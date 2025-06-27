@@ -11,7 +11,7 @@ const RecommendedMovies: React.FC = () => {
         const token = localStorage.getItem("token");
 
         try {
-            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetRecommendedMovies", {
+            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetRecommendedMovies/recommended", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
