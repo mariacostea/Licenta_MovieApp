@@ -102,12 +102,22 @@ export default function People() {
         user: { id: string; name: string; profilePictureUrl?: string },
         extra?: React.ReactNode
     ) => (
-        <li key={user.id} className="mb-2 d-flex align-items-center gap-2">
-            {user.profilePictureUrl && (
+        <li key={user.id} className="mb-3 d-flex align-items-center gap-3">
+            {user.profilePictureUrl ? (
                 <img
                     src={user.profilePictureUrl}
                     alt="profile"
-                    style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }}
+                    style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover" }}
+                />
+            ) : (
+                <div
+                    style={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: "50%",
+                        backgroundColor: "#444",
+                        display: "inline-block"
+                    }}
                 />
             )}
             <span>{user.name}</span>
