@@ -16,16 +16,16 @@ const ProfilePage: React.FC = () => {
         if (!userId || !token) return;
 
         const auth = { Authorization: `Bearer ${token}` };
-
+        
         fetch(`${API}/User/GetById/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
-                const user = data.response || data.result || {};
-                setName(user.name);
-                setEmail(user.email);
-                setProfilePictureUrl(user.profilePictureUrl);
+                const user = data?.result || data?.response || {};
+                setName(user.name || "");
+                setEmail(user.email || "");
+                setProfilePictureUrl(user.profilePictureUrl || null);
             });
-
+        
         fetch(`${API}/User/Count/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
@@ -43,7 +43,7 @@ const ProfilePage: React.FC = () => {
 
         if (!token) return;
 
-        const res = await fetch(`${API}/User/UploadProfilePicture`, {
+        const res = await fetch(`${API}/User/UploadProfilePicture/upload-profile-picture`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${token}`
@@ -63,11 +63,17 @@ const ProfilePage: React.FC = () => {
 
     return (
         <div style={{ minHeight: "100vh", background: "#121212", color: "white", padding: "2rem" }}>
-            <div style={{ maxWidth: "600px", margin: "auto", background: "#1e1e1e", padding: "2rem", borderRadius: "1rem" }}>
-                <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>👤 Profile</h2>
+            <div style={{
+                maxWidth: "600px",
+                margin: "auto",
+                background: "#1e1e1e",
+                padding: "2rem",
+                borderRadius: "1rem",
+                textAlign: "center"
+            }}>
+                <h2 style={{ marginBottom: "2rem" }}>👤 Profile</h2>
 
-                {/* Poza de profil vizibilă mereu */}
-                <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+                <label style={{ display: "block", cursor: "pointer", color: "#aaa", marginBottom: "1rem" }}>
                     {profilePictureUrl ? (
                         <img
                             src={profilePictureUrl}
@@ -77,22 +83,31 @@ const ProfilePage: React.FC = () => {
                                 height: 150,
                                 borderRadius: "50%",
                                 objectFit: "cover",
-                                border: "2px solid #888",
                                 marginBottom: "1rem"
                             }}
                         />
                     ) : (
-                        <p style={{ color: "#aaa" }}>No profile picture uploaded.</p>
+                        <div style={{ marginBottom: "1rem" }}>No profile picture uploaded.</div>
                     )}
-                </div>
-
-                {/* Upload input vizibil oricând */}
-                <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-                    <label style={{ display: "inline-block", cursor: "pointer", padding: "0.5rem 1rem", background: "#333", borderRadius: "5px" }}>
+                    <button
+                        style={{
+                            backgroundColor: "#333",
+                            color: "white",
+                            padding: "0.5rem 1rem",
+                            border: "none",
+                            borderRadius: "0.5rem",
+                            cursor: "pointer"
+                        }}
+                    >
                         Upload New Picture
-                        <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
-                    </label>
-                </div>
+                    </button>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        style={{ display: "none" }}
+                    />
+                </label>
 
                 <p><strong>Name:</strong> {name}</p>
                 <p><strong>Email:</strong> {email}</p>
