@@ -23,14 +23,11 @@ namespace MobyLabWebProgramming.Backend.Controllers;
 public class UserController : AuthorizedController
 {
     private readonly WebAppDatabaseContext _db;
-    private readonly ICloudinaryService _cloudinaryService;
 
-    public UserController(IUserService userService, WebAppDatabaseContext db, ICloudinaryService cloudinaryService)
-        : base(userService)
+    public UserController(IUserService userService, WebAppDatabaseContext db) : base(userService)
     {
         _db = db;
-        _cloudinaryService = cloudinaryService;
-    }                                                                               // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
+    }                                                                                     // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
     /// <summary>
     /// This method implements the Read operation (R from CRUD) on a user. 
     /// </summary>
@@ -181,29 +178,29 @@ public class UserController : AuthorizedController
         return Ok(friends);
     }
     
-    [Authorize]
     [HttpPost("upload-profile-picture")]
+    [AllowAnonymous]
     public async Task<IActionResult> UploadProfilePicture(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("No file uploaded.");
 
-        var currentUser = await GetCurrentUser();
-        if (currentUser.Result == null)
-            return Unauthorized("User not found.");
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
 
-        var cloudUrl = await _cloudinaryService.UploadImageAsync(file);
-        if (cloudUrl == null)
-            return StatusCode(500, "Image upload failed.");
+        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        var filePath = Path.Combine(uploadsFolder, fileName);
 
-        var user = await _db.Users.FindAsync(currentUser.Result.Id);
-        if (user == null)
-            return NotFound("User not found in database.");
-
-        user.ProfilePictureUrl = cloudUrl;
-        await _db.SaveChangesAsync();
-
-        return Ok(new { url = cloudUrl });
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+        
+        var relativeUrl = $"/uploads/{fileName}";
+        return Ok(new { url = relativeUrl });
     }
     
     [HttpGet("{userId:guid}")]
