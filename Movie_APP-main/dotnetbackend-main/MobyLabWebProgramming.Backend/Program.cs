@@ -15,6 +15,8 @@ builder.Services.Configure<HostOptions>(opt =>
     opt.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
 });
 
+builder.Services.AddSingleton<CloudinaryService>();
+
 #region CORS
 const string FrontendPolicy = "FrontendPolicy";
 
