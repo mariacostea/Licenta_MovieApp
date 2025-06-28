@@ -14,8 +14,9 @@ builder.Services.Configure<HostOptions>(opt =>
     opt.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
 });
 
-#region Cloudinary Service
-builder.Services.AddScoped<ICloudinaryService, CloudinaryService>(); // ✅ corect
+#region Cloudinary Service Configuration
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary")); // ✅ Adăugat pentru config
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>(); // ✅ Înregistrare serviciu
 #endregion
 
 #region CORS
