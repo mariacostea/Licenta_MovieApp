@@ -27,7 +27,7 @@ public class AuthorizationController(IUserService userService, ILoginService log
             Email = register.Email,
             Password = PasswordUtils.HashPassword(register.Password),
             Role = UserRoleEnum.User,
-            ProfilePictureUrl = register.ProfilePictureUrl
+            ProfilePictureUrl = null
         };
 
         return FromServiceResponse(await userService.AddUser(hashedUser));
