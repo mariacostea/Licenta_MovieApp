@@ -22,55 +22,53 @@ const Register: React.FC = () => {
 
         try {
             let profilePictureUrl = "";
-            
-            if (profilePicture) {
-                const formData = new FormData();
-                formData.append("file", profilePicture);
 
-                const uploadRes = await fetch("/api/User/upload-profile-picture", {
+            if (profilePicture) {
+                const picForm = new FormData();
+                picForm.append("file", profilePicture);
+
+                const uploadRes = await fetch("/api/user/upload-profile-picture", {
                     method: "POST",
-                    body: formData,
+                    body: picForm,
                 });
 
-                if (!uploadRes.ok) {
-                    throw new Error("Failed to upload profile picture.");
-                }
+                if (!uploadRes.ok) throw new Error("Failed to upload profile picture.");
 
-                const uploadJson = await uploadRes.json();
-                profilePictureUrl = uploadJson.url;
+                const { url } = await uploadRes.json();
+                profilePictureUrl = url;
             }
-            
-            const registerRes = await fetch("/api/authorization/register", {
+
+            const response = await fetch("/api/authorization/register", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     username,
                     email,
                     password,
-                    profilePictureUrl,
-                }),
+                    profilePictureUrl
+                })
             });
 
-            if (!registerRes.ok) {
-                const msg = await registerRes.text();
-                throw new Error(msg || "Registration failed.");
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text || "Registration failed.");
             }
 
-            alert("Account created! Please check your email.");
+            alert("Account created! Please log in.");
             setUsername("");
             setEmail("");
             setPassword("");
             setProfilePicture(null);
             navigate("/login");
-
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="register-container">
