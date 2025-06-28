@@ -8,6 +8,7 @@ const ProfilePage: React.FC = () => {
     const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
     const [watchedCount, setWatchedCount] = useState(0);
     const [recommendedCount, setRecommendedCount] = useState(0);
+
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
 
@@ -16,6 +17,7 @@ const ProfilePage: React.FC = () => {
 
         const auth = { Authorization: `Bearer ${token}` };
 
+        // Fetch user info
         fetch(`${API}/User/GetById/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
@@ -25,13 +27,14 @@ const ProfilePage: React.FC = () => {
                 setProfilePictureUrl(user.profilePictureUrl);
             });
 
+        // Fetch movie counters
         fetch(`${API}/User/Count/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
                 setWatchedCount(data.watched || 0);
                 setRecommendedCount(data.recommended || 0);
             });
-    }, []);
+    }, [userId, token]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
@@ -40,13 +43,24 @@ const ProfilePage: React.FC = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch(`${API}/User/UploadProfilePicture/upload-profile-picture`, {
+        if (!token) return;
+
+        const res = await fetch(`${API}/User/UploadProfilePicture`, {
             method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
             body: formData
         });
 
         const result = await res.json();
-        setProfilePictureUrl(result.url);
+
+        if (res.ok && result.url) {
+            setProfilePictureUrl(result.url);
+        } else {
+            console.error("Upload failed:", result);
+            alert("Image upload failed.");
+        }
     };
 
     return (
@@ -55,18 +69,29 @@ const ProfilePage: React.FC = () => {
                 <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>👤 Profile</h2>
 
                 <div style={{ textAlign: "center" }}>
-                    {profilePictureUrl ? (
-                        <img
-                            src={profilePictureUrl}
-                            alt="Profile"
-                            style={{ width: 150, height: 150, borderRadius: "50%", objectFit: "cover", marginBottom: "1rem" }}
+                    <label style={{ display: "block", cursor: "pointer", color: "#aaa" }}>
+                        {profilePictureUrl ? (
+                            <img
+                                src={profilePictureUrl}
+                                alt="Profile"
+                                style={{
+                                    width: 150,
+                                    height: 150,
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                    marginBottom: "1rem"
+                                }}
+                            />
+                        ) : (
+                            "Upload Profile Picture"
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            style={{ display: "none" }}
                         />
-                    ) : (
-                        <label style={{ display: "block", cursor: "pointer", color: "#aaa" }}>
-                            Upload Profile Picture
-                            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
-                        </label>
-                    )}
+                    </label>
                 </div>
 
                 <p><strong>Name:</strong> {name}</p>
