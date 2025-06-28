@@ -25,7 +25,7 @@ const ProfilePage: React.FC = () => {
                 setProfilePictureUrl(user.profilePictureUrl);
             });
 
-        fetch(`${API}/UserMovie/count/${userId}`, { headers: auth })
+        fetch(`${API}/User/Count/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
                 setWatchedCount(data.watched || 0);
@@ -40,7 +40,7 @@ const ProfilePage: React.FC = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch(`${API}/User/upload-profile-picture`, {
+        const res = await fetch(`${API}/User/UploadProfilePicture/upload-profile-picture`, {
             method: "POST",
             body: formData
         });
