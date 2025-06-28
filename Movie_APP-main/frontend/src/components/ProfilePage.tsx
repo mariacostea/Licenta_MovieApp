@@ -17,7 +17,6 @@ const ProfilePage: React.FC = () => {
 
         const auth = { Authorization: `Bearer ${token}` };
 
-        // Fetch user info
         fetch(`${API}/User/GetById/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
@@ -27,7 +26,6 @@ const ProfilePage: React.FC = () => {
                 setProfilePictureUrl(user.profilePictureUrl);
             });
 
-        // Fetch movie counters
         fetch(`${API}/User/Count/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
@@ -68,29 +66,31 @@ const ProfilePage: React.FC = () => {
             <div style={{ maxWidth: "600px", margin: "auto", background: "#1e1e1e", padding: "2rem", borderRadius: "1rem" }}>
                 <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>👤 Profile</h2>
 
-                <div style={{ textAlign: "center" }}>
-                    <label style={{ display: "block", cursor: "pointer", color: "#aaa" }}>
-                        {profilePictureUrl ? (
-                            <img
-                                src={profilePictureUrl}
-                                alt="Profile"
-                                style={{
-                                    width: 150,
-                                    height: 150,
-                                    borderRadius: "50%",
-                                    objectFit: "cover",
-                                    marginBottom: "1rem"
-                                }}
-                            />
-                        ) : (
-                            "Upload Profile Picture"
-                        )}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            style={{ display: "none" }}
+                {/* Poza de profil vizibilă mereu */}
+                <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+                    {profilePictureUrl ? (
+                        <img
+                            src={profilePictureUrl}
+                            alt="Profile"
+                            style={{
+                                width: 150,
+                                height: 150,
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                border: "2px solid #888",
+                                marginBottom: "1rem"
+                            }}
                         />
+                    ) : (
+                        <p style={{ color: "#aaa" }}>No profile picture uploaded.</p>
+                    )}
+                </div>
+
+                {/* Upload input vizibil oricând */}
+                <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+                    <label style={{ display: "inline-block", cursor: "pointer", padding: "0.5rem 1rem", background: "#333", borderRadius: "5px" }}>
+                        Upload New Picture
+                        <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
                     </label>
                 </div>
 
