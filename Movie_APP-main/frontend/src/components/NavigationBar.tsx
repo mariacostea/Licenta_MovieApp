@@ -23,6 +23,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ onSearch }) => {
             <div className="d-flex gap-2 ms-3">
                 <Link to="/watched" className="btn btn-warning">Watched Movies</Link>
                 <Link to="/recommended" className="btn btn-info">Recommended Movies</Link>
+                <Link to="/profile" className="btn btn-secondary">Profile</Link>
             </div>
         </nav>
     );

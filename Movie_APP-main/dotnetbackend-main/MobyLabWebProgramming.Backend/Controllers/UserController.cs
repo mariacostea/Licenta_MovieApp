@@ -202,7 +202,23 @@ public class UserController : AuthorizedController
         var relativeUrl = $"/uploads/{fileName}";
         return Ok(new { url = relativeUrl });
     }
-
-
     
+    [HttpGet("{userId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> Count(Guid userId)
+    {
+        var watchedCount = await _db.UserMovies
+            .CountAsync(um => um.UserId == userId && um.IsWatched);
+
+        var recommendedCount = await _db.UserMovies
+            .CountAsync(um => um.UserId == userId && um.IsRecommended);
+
+        return Ok(new
+        {
+            watched = watchedCount,
+            recommended = recommendedCount
+        });
+    }
 }
+
+
