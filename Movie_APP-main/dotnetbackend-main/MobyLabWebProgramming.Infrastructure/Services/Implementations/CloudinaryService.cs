@@ -1,43 +1,38 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using MobyLabWebProgramming.Infrastructure.Configurations;
 using MobyLabWebProgramming.Infrastructure.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 
-namespace MobyLabWebProgramming.Infrastructure.Services.Implementations
+
+public class CloudinaryService : ICloudinaryService
 {
-    public class CloudinaryService : ICloudinaryService
+    private readonly Cloudinary _cloudinary;
+
+    public CloudinaryService(IOptions<CloudinarySettings> config)
     {
-        private readonly Cloudinary _cloudinary;
+        var account = new Account(
+            config.Value.CloudName,
+            config.Value.ApiKey,
+            config.Value.ApiSecret
+        );
 
-        public CloudinaryService(IConfiguration config)
+        _cloudinary = new Cloudinary(account);
+    }
+    public async Task<string?> UploadImageAsync(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return null;
+
+        await using var stream = file.OpenReadStream();
+        var uploadParams = new ImageUploadParams
         {
-            var account = new Account(
-                config["Cloudinary:CloudName"],
-                config["Cloudinary:ApiKey"],
-                config["Cloudinary:ApiSecret"]
-            );
+            File = new FileDescription(file.FileName, stream),
+            Folder = "profile_pictures"
+        };
 
-            _cloudinary = new Cloudinary(account);
-        }
-
-        public async Task<string?> UploadImageAsync(IFormFile file)
-        {
-            if (file.Length == 0) return null;
-
-            await using var stream = file.OpenReadStream();
-
-            var uploadParams = new ImageUploadParams
-            {
-                File = new FileDescription(file.FileName, stream),
-                UseFilename = true,
-                UniqueFilename = true,
-                Overwrite = false
-            };
-
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-            return uploadResult?.SecureUrl?.ToString();
-        }
+        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+        return uploadResult?.SecureUrl?.ToString();
     }
 }
