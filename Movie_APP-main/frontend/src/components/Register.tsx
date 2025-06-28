@@ -5,14 +5,21 @@ const Register: React.FC = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
         setError(null);
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+
+        setLoading(true);
 
         try {
             const response = await fetch("/api/authorization/register", {
@@ -36,6 +43,7 @@ const Register: React.FC = () => {
             setUsername("");
             setEmail("");
             setPassword("");
+            setConfirmPassword("");
             navigate("/login");
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred.");
@@ -69,6 +77,13 @@ const Register: React.FC = () => {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                     />
 
