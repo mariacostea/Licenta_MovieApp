@@ -40,7 +40,7 @@ public class FriendshipService : IFriendshipService
             RequesterId = dto.FromUserId,
             AddresseeId = dto.ToUserId,
             Status = FriendshipStatus.Pending,
-            RequestedAt = DateTime.UtcNow
+            RequestedAt = DateTime.UtcNow,
         };
 
         await _repo.AddAsync(entity, ct);

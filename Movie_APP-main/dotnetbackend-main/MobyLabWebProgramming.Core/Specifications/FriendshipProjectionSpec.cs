@@ -20,7 +20,9 @@ public sealed class FriendshipProjectionSpec : Specification<Core.Entities.Frien
                 AddresseeName = f.Addressee!.Name,
                 Status        = f.Status.ToString(),
                 RequestedAt   = f.RequestedAt,
-                AcceptedAt    = f.AcceptedAt
+                AcceptedAt    = f.AcceptedAt,
+                PhotoUrlRequester = f.Requester!.ProfilePictureUrl,
+                PhotoUrlAddressee = f.Addressee!.ProfilePictureUrl
             });
     }
 }

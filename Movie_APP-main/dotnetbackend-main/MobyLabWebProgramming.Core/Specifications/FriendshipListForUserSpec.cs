@@ -20,7 +20,9 @@ public sealed class FriendshipListForUserSpec : Specification<Core.Entities.Frie
                 AddresseeName = f.Addressee!.Name,
                 Status        = f.Status.ToString(),
                 RequestedAt   = f.RequestedAt,
-                AcceptedAt    = f.AcceptedAt
+                AcceptedAt    = f.AcceptedAt,
+                PhotoUrlAddressee = f.Addressee!.ProfilePictureUrl,
+                PhotoUrlRequester = f.Requester!.ProfilePictureUrl
             });
     }
 }

@@ -20,7 +20,9 @@ public sealed class FriendshipPendingSpec : Specification<Core.Entities.Friendsh
                 AddresseeName = f.Addressee!.Name,
                 Status        = f.Status.ToString(),
                 RequestedAt   = f.RequestedAt,
-                AcceptedAt    = f.AcceptedAt
+                AcceptedAt    = f.AcceptedAt,
+                PhotoUrlAddressee = f.Addressee!.ProfilePictureUrl,
+                PhotoUrlRequester = f.Requester!.ProfilePictureUrl
             });
     }
 }

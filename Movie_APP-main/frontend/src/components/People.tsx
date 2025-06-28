@@ -12,6 +12,7 @@ interface Friendship {
     id: string;
     requesterId: string;
     requesterName: string;
+    requesterProfilePictureUrl?: string;
 }
 
 type Tab = "all" | "pendingSent" | "pendingReceived" | "friends";
@@ -98,7 +99,7 @@ export default function People() {
         pendingReceived.some((f) => f.requesterId === id);
 
     const renderUser = (
-        user: User | { id: string; name: string; profilePictureUrl?: string },
+        user: { id: string; name: string; profilePictureUrl?: string },
         extra?: React.ReactNode
     ) => (
         <li key={user.id} className="mb-2 d-flex align-items-center gap-2">
@@ -170,7 +171,12 @@ export default function People() {
                     {tab === "pendingReceived" &&
                         (pendingReceived.length > 0 ? (
                             pendingReceived.map((f) =>
-                                renderUser({ id: f.requesterId, name: f.requesterName }, (
+                                renderUser(
+                                    {
+                                        id: f.requesterId,
+                                        name: f.requesterName,
+                                        profilePictureUrl: f.requesterProfilePictureUrl
+                                    },
                                     <>
                                         <button className="btn btn-sm btn-success me-1" onClick={() => acceptRequest(f.id)}>
                                             Accept
@@ -179,7 +185,7 @@ export default function People() {
                                             Reject
                                         </button>
                                     </>
-                                ))
+                                )
                             )
                         ) : (
                             <li>No received friend requests</li>
