@@ -68,7 +68,8 @@ public class UserService(
             Id = user.Id,
             Email = user.Email,
             Name = user.Name,
-            Role = user.Role
+            Role = user.Role,
+            ProfilePictureUrl = user.ProfilePictureUrl
         };
 
         var token = loginService.GetToken(userDTO, DateTime.UtcNow, TimeSpan.FromDays(7));

@@ -21,7 +21,8 @@ public sealed class UserProjectionSpec : Specification<User, UserDTO>
             Id = e.Id,
             Email = e.Email,
             Name = e.Name,
-            Role = e.Role
+            Role = e.Role,
+            ProfilePictureUrl = e.ProfilePictureUrl
         })
         .OrderByDescending(x => x.CreatedAt, orderByCreatedAt);
 
