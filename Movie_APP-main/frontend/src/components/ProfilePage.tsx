@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 
 const API = "https://licenta-backend-nf1m.onrender.com/api";
 
@@ -8,6 +8,7 @@ const ProfilePage: React.FC = () => {
     const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
     const [watchedCount, setWatchedCount] = useState(0);
     const [recommendedCount, setRecommendedCount] = useState(0);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
@@ -16,16 +17,18 @@ const ProfilePage: React.FC = () => {
         if (!userId || !token) return;
 
         const auth = { Authorization: `Bearer ${token}` };
-        
+
+        // Get user data
         fetch(`${API}/User/GetById/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
-                const user = data?.result || data?.response || {};
-                setName(user.name || "");
-                setEmail(user.email || "");
-                setProfilePictureUrl(user.profilePictureUrl || null);
+                const user = data.response || data.result || {};
+                setName(user.name);
+                setEmail(user.email);
+                setProfilePictureUrl(user.profilePictureUrl);
             });
-        
+
+        // Get movie stats
         fetch(`${API}/User/Count/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
@@ -33,6 +36,10 @@ const ProfilePage: React.FC = () => {
                 setRecommendedCount(data.recommended || 0);
             });
     }, [userId, token]);
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
@@ -73,7 +80,7 @@ const ProfilePage: React.FC = () => {
             }}>
                 <h2 style={{ marginBottom: "2rem" }}>👤 Profile</h2>
 
-                <label style={{ display: "block", cursor: "pointer", color: "#aaa", marginBottom: "1rem" }}>
+                <div style={{ marginBottom: "1rem" }}>
                     {profilePictureUrl ? (
                         <img
                             src={profilePictureUrl}
@@ -87,14 +94,15 @@ const ProfilePage: React.FC = () => {
                             }}
                         />
                     ) : (
-                        <div style={{ marginBottom: "1rem" }}>No profile picture uploaded.</div>
+                        <p>No profile picture uploaded.</p>
                     )}
                     <button
+                        onClick={handleUploadClick}
                         style={{
                             backgroundColor: "#333",
                             color: "white",
                             padding: "0.5rem 1rem",
-                            border: "none",
+                            border: "1px solid white",
                             borderRadius: "0.5rem",
                             cursor: "pointer"
                         }}
@@ -104,10 +112,11 @@ const ProfilePage: React.FC = () => {
                     <input
                         type="file"
                         accept="image/*"
+                        ref={fileInputRef}
                         onChange={handleFileChange}
                         style={{ display: "none" }}
                     />
-                </label>
+                </div>
 
                 <p><strong>Name:</strong> {name}</p>
                 <p><strong>Email:</strong> {email}</p>
