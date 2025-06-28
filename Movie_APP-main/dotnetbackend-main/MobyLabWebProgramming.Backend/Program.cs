@@ -80,7 +80,7 @@ using (var scope = app.Services.CreateScope())
 */
 #region Pipeline
 app.UseCors(FrontendPolicy);
-
+app.UseStaticFiles();
 app.ConfigureApplication();
 
 app.MapControllers();

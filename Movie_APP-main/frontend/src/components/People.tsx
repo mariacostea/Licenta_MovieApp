@@ -97,16 +97,28 @@ export default function People() {
         pendingSent.some((u) => u.id === id) ||
         pendingReceived.some((f) => f.requesterId === id);
 
+    const renderUser = (
+        user: User | { id: string; name: string; profilePictureUrl?: string },
+        extra?: React.ReactNode
+    ) => (
+        <li key={user.id} className="mb-2 d-flex align-items-center gap-2">
+            {user.profilePictureUrl && (
+                <img
+                    src={user.profilePictureUrl}
+                    alt="profile"
+                    style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }}
+                />
+            )}
+            <span>{user.name}</span>
+            {extra && <div className="ms-auto">{extra}</div>}
+        </li>
+    );
+
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
             <div
                 className="bg-dark py-3 border-bottom shadow"
-                style={{
-                    position: "sticky",
-                    top: 0,
-                    width: "100%",
-                    zIndex: 1050,
-                }}
+                style={{ position: "sticky", top: 0, width: "100%", zIndex: 1050 }}
             >
                 <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
                     <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
@@ -130,58 +142,52 @@ export default function People() {
                 <h2 className="mb-4">👥 People</h2>
 
                 <div className="btn-group mb-4">
-                    <button className={`btn btn-outline-primary ${tab === "all" && "active"}`} onClick={() => setTab("all")}>
-                        All Users
-                    </button>
-                    <button className={`btn btn-outline-warning ${tab === "pendingSent" && "active"}`} onClick={() => setTab("pendingSent")}>
-                        Sent Requests
-                    </button>
-                    <button className={`btn btn-outline-info ${tab === "pendingReceived" && "active"}`} onClick={() => setTab("pendingReceived")}>
-                        Received Requests
-                    </button>
-                    <button className={`btn btn-outline-success ${tab === "friends" && "active"}`} onClick={() => setTab("friends")}>
-                        Friends
-                    </button>
+                    <button className={`btn btn-outline-primary ${tab === "all" && "active"}`} onClick={() => setTab("all")}>All Users</button>
+                    <button className={`btn btn-outline-warning ${tab === "pendingSent" && "active"}`} onClick={() => setTab("pendingSent")}>Sent Requests</button>
+                    <button className={`btn btn-outline-info ${tab === "pendingReceived" && "active"}`} onClick={() => setTab("pendingReceived")}>Received Requests</button>
+                    <button className={`btn btn-outline-success ${tab === "friends" && "active"}`} onClick={() => setTab("friends")}>Friends</button>
                 </div>
 
                 <ul className="list-unstyled">
                     {tab === "all" &&
-                        users.filter((u) => !isKnown(u.id)).map((u) => (
-                            <li key={u.id} className="mb-2">
-                                {u.name}{" "}
+                        users.filter((u) => !isKnown(u.id)).map((u) =>
+                            renderUser(u, (
                                 <button className="btn btn-sm btn-primary" onClick={() => sendRequest(u.id)}>
                                     Add Friend
                                 </button>
-                            </li>
-                        ))}
+                            ))
+                        )}
 
                     {tab === "pendingSent" &&
                         (pendingSent.length > 0 ? (
-                            pendingSent.map((u) => <li key={u.id}>{u.name} (Pending)</li>)
+                            pendingSent.map((u) =>
+                                renderUser(u, <span className="text-muted">(Pending)</span>)
+                            )
                         ) : (
                             <li>No pending sent requests</li>
                         ))}
 
                     {tab === "pendingReceived" &&
                         (pendingReceived.length > 0 ? (
-                            pendingReceived.map((f) => (
-                                <li key={f.id}>
-                                    {f.requesterName}{" "}
-                                    <button className="btn btn-sm btn-success me-1" onClick={() => acceptRequest(f.id)}>
-                                        Accept
-                                    </button>
-                                    <button className="btn btn-sm btn-danger" onClick={() => rejectRequest(f.id)}>
-                                        Reject
-                                    </button>
-                                </li>
-                            ))
+                            pendingReceived.map((f) =>
+                                renderUser({ id: f.requesterId, name: f.requesterName }, (
+                                    <>
+                                        <button className="btn btn-sm btn-success me-1" onClick={() => acceptRequest(f.id)}>
+                                            Accept
+                                        </button>
+                                        <button className="btn btn-sm btn-danger" onClick={() => rejectRequest(f.id)}>
+                                            Reject
+                                        </button>
+                                    </>
+                                ))
+                            )
                         ) : (
                             <li>No received friend requests</li>
                         ))}
 
                     {tab === "friends" &&
                         (friends.length > 0 ? (
-                            friends.map((u) => <li key={u.id}>{u.name}</li>)
+                            friends.map((u) => renderUser(u))
                         ) : (
                             <li>No friends</li>
                         ))}

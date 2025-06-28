@@ -12,9 +12,7 @@ const Register: React.FC = () => {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setProfilePicture(file);
-        }
+        if (file) setProfilePicture(file);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -23,20 +21,26 @@ const Register: React.FC = () => {
         setError(null);
 
         try {
-            let profilePictureBase64 = "";
+            let uploadedImageUrl = "";
 
             if (profilePicture) {
-                const reader = new FileReader();
-                reader.readAsDataURL(profilePicture);
-                await new Promise<void>((resolve) => {
-                    reader.onload = () => {
-                        profilePictureBase64 = reader.result as string;
-                        resolve();
-                    };
+                const imageForm = new FormData();
+                imageForm.append("file", profilePicture);
+
+                const uploadResponse = await fetch("/api/User/upload-profile-picture", {
+                    method: "POST",
+                    body: imageForm,
                 });
+
+                if (!uploadResponse.ok) {
+                    throw new Error("Failed to upload profile picture.");
+                }
+
+                const uploadResult = await uploadResponse.json();
+                uploadedImageUrl = uploadResult.url;
             }
 
-            const response = await fetch("/api/authorization/register", {
+            const registerResponse = await fetch("/api/authorization/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -45,28 +49,24 @@ const Register: React.FC = () => {
                     Username: username,
                     Email: email,
                     Password: password,
-                    ProfilePictureUrl: profilePictureBase64,
+                    ProfilePictureUrl: uploadedImageUrl,
                 }),
             });
 
-            if (!response.ok) {
-                const message = await response.text();
-                throw new Error(message || "Registration failed.");
+            if (!registerResponse.ok) {
+                const text = await registerResponse.text();
+                throw new Error(text || "Registration failed.");
             }
 
             alert("Account created! Please check your email to confirm.");
-            setUsername("");
-            setEmail("");
-            setPassword("");
-            setProfilePicture(null);
             navigate("/login");
         } catch (err: any) {
-            console.error("Registration error:", err);
             setError(err.message || "An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="register-container">
@@ -117,81 +117,81 @@ const Register: React.FC = () => {
             </div>
 
             <style>{`
-            .register-container {
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background-image: url("/movibackgroung.jpg");
-                background-size: cover;
-                background-position: center;
-            }
-        
-            .register-card {
-                background: rgba(0, 0, 0, 0.85);
-                padding: 2rem;
-                border-radius: 12px;
-                width: 100%;
-                max-width: 400px;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.8);
-                text-align: center;
-                color: #eee;
-            }
-        
-            .register-card h1 {
-                margin-bottom: 1.5rem;
-                font-size: 2rem;
-                color: #ffa500; /* orange cinematic */
-            }
-        
-            .register-card input {
-                width: 100%;
-                padding: 0.75rem;
-                margin-bottom: 1rem;
-                border: 1px solid #444;
-                border-radius: 8px;
-                background-color: #1b1b1b;
-                color: #fff;
-            }
-        
-            .register-card input[type="file"] {
-                color: #aaa;
-                background-color: transparent;
-                border: none;
-            }
+                .register-container {
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-image: url("/movibackgroung.jpg");
+                    background-size: cover;
+                    background-position: center;
+                }
 
-            .register-card button {
-                width: 100%;
-                padding: 0.75rem;
-                background: #ffa500;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-weight: bold;
-                cursor: pointer;
-                transition: background 0.3s ease;
-            }
-        
-            .register-card button:hover {
-                background: #e65c00;
-            }
-        
-            .register-card .error {
-                color: #ff4c4c;
-                margin-top: 1rem;
-            }
-        
-            .login-link {
-                color: #c11c1c;
-                cursor: pointer;
-                font-weight: bold;
-            }
-        
-            .login-link:hover {
-                text-decoration: underline;
-                color: #ff66ff;
-            }
-        `}</style>
+                .register-card {
+                    background: rgba(0, 0, 0, 0.85);
+                    padding: 2rem;
+                    border-radius: 12px;
+                    width: 100%;
+                    max-width: 400px;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+                    text-align: center;
+                    color: #eee;
+                }
+
+                .register-card h1 {
+                    margin-bottom: 1.5rem;
+                    font-size: 2rem;
+                    color: #ffa500;
+                }
+
+                .register-card input {
+                    width: 100%;
+                    padding: 0.75rem;
+                    margin-bottom: 1rem;
+                    border: 1px solid #444;
+                    border-radius: 8px;
+                    background-color: #1b1b1b;
+                    color: #fff;
+                }
+
+                .register-card input[type="file"] {
+                    color: #aaa;
+                    background-color: transparent;
+                    border: none;
+                }
+
+                .register-card button {
+                    width: 100%;
+                    padding: 0.75rem;
+                    background: #ffa500;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: background 0.3s ease;
+                }
+
+                .register-card button:hover {
+                    background: #e65c00;
+                }
+
+                .register-card .error {
+                    color: #ff4c4c;
+                    margin-top: 1rem;
+                }
+
+                .login-link {
+                    color: #c11c1c;
+                    cursor: pointer;
+                    font-weight: bold;
+                }
+
+                .login-link:hover {
+                    text-decoration: underline;
+                    color: #ff66ff;
+                }
+            `}</style>
         </div>
     );
 };
