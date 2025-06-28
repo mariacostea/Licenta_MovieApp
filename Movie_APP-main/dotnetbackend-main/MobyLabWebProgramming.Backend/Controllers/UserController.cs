@@ -177,13 +177,16 @@ public class UserController : AuthorizedController
 
         return Ok(friends);
     }
-    
     [HttpPost("upload-profile-picture")]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<IActionResult> UploadProfilePicture(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("No file uploaded.");
+
+        var currentUser = await GetCurrentUser();
+        if (currentUser.Result == null)
+            return Unauthorized("User not found.");
 
         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!Directory.Exists(uploadsFolder))
@@ -194,14 +197,23 @@ public class UserController : AuthorizedController
         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
         var filePath = Path.Combine(uploadsFolder, fileName);
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        await using (var stream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(stream);
         }
-        
+
         var relativeUrl = $"/uploads/{fileName}";
+        
+        var user = await _db.Users.FindAsync(currentUser.Result.Id);
+        if (user == null)
+            return NotFound("User not found in database.");
+
+        user.ProfilePictureUrl = relativeUrl;
+        await _db.SaveChangesAsync();
+
         return Ok(new { url = relativeUrl });
     }
+
     
     [HttpGet("{userId:guid}")]
     [Authorize]
