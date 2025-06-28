@@ -18,16 +18,21 @@ namespace MobyLabWebProgramming.Backend.Controllers;
 /// This is a controller example for CRUD operations on users.
 /// Inject the required services through the constructor.
 /// </summary>
-[ApiController] // This attribute specifies for the framework to add functionality to the controller such as binding multipart/form-data.
-[Route("api/[controller]/[action]")] // The Route attribute prefixes the routes/url paths with template provides as a string, the keywords between [] are used to automatically take the controller and method name.
+[ApiController]
+[Route("api/[controller]/[action]")]
 public class UserController : AuthorizedController
 {
     private readonly WebAppDatabaseContext _db;
+    private readonly ICloudinaryService _cloudinaryService;
 
-    public UserController(IUserService userService, WebAppDatabaseContext db) : base(userService)
+    public UserController(
+        IUserService userService,
+        WebAppDatabaseContext db,
+        ICloudinaryService cloudinaryService) : base(userService)
     {
         _db = db;
-    }                                                                                     // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
+        _cloudinaryService = cloudinaryService;
+    }                                                                                // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
     /// <summary>
     /// This method implements the Read operation (R from CRUD) on a user. 
     /// </summary>
@@ -177,31 +182,32 @@ public class UserController : AuthorizedController
 
         return Ok(friends);
     }
-    
     [HttpPost("upload-profile-picture")]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<IActionResult> UploadProfilePicture(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("No file uploaded.");
 
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-        if (!Directory.Exists(uploadsFolder))
-        {
-            Directory.CreateDirectory(uploadsFolder);
-        }
+        var currentUser = await GetCurrentUser();
+        if (currentUser.Result == null)
+            return Unauthorized("User not found.");
 
-        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-        var filePath = Path.Combine(uploadsFolder, fileName);
+        // Upload în Cloudinary
+        var cloudUrl = await _cloudinaryService.UploadImageAsync(file);
+        if (string.IsNullOrEmpty(cloudUrl))
+            return StatusCode(500, "Image upload failed.");
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-        
-        var relativeUrl = $"/uploads/{fileName}";
-        return Ok(new { url = relativeUrl });
+        var user = await _db.Users.FindAsync(currentUser.Result.Id);
+        if (user == null)
+            return NotFound("User not found in database.");
+
+        user.ProfilePictureUrl = cloudUrl;
+        await _db.SaveChangesAsync();
+
+        return Ok(new { url = cloudUrl });
     }
+
     
     [HttpGet("{userId:guid}")]
     [Authorize]
