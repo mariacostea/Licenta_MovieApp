@@ -22,8 +22,7 @@ const Register: React.FC = () => {
 
         try {
             let profilePictureUrl = "";
-
-            // Upload imagine dacă există
+            
             if (profilePicture) {
                 const formData = new FormData();
                 formData.append("file", profilePicture);
@@ -40,8 +39,7 @@ const Register: React.FC = () => {
                 const uploadJson = await uploadRes.json();
                 profilePictureUrl = uploadJson.url;
             }
-
-            // Trimite datele de înregistrare
+            
             const registerRes = await fetch("/api/authorization/register", {
                 method: "POST",
                 headers: {
