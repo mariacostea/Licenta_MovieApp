@@ -21,52 +21,58 @@ const Register: React.FC = () => {
         setError(null);
 
         try {
-            let uploadedImageUrl = "";
+            let profilePictureUrl = "";
 
+            // Upload imagine dacă există
             if (profilePicture) {
-                const imageForm = new FormData();
-                imageForm.append("file", profilePicture);
+                const formData = new FormData();
+                formData.append("file", profilePicture);
 
-                const uploadResponse = await fetch("/api/User/upload-profile-picture", {
+                const uploadRes = await fetch("/api/User/upload-profile-picture", {
                     method: "POST",
-                    body: imageForm,
+                    body: formData,
                 });
 
-                if (!uploadResponse.ok) {
+                if (!uploadRes.ok) {
                     throw new Error("Failed to upload profile picture.");
                 }
 
-                const uploadResult = await uploadResponse.json();
-                uploadedImageUrl = uploadResult.url;
+                const uploadJson = await uploadRes.json();
+                profilePictureUrl = uploadJson.url;
             }
 
-            const registerResponse = await fetch("/api/authorization/register", {
+            // Trimite datele de înregistrare
+            const registerRes = await fetch("/api/authorization/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    Username: username,
-                    Email: email,
-                    Password: password,
-                    ProfilePictureUrl: uploadedImageUrl,
+                    username,
+                    email,
+                    password,
+                    profilePictureUrl,
                 }),
             });
 
-            if (!registerResponse.ok) {
-                const text = await registerResponse.text();
-                throw new Error(text || "Registration failed.");
+            if (!registerRes.ok) {
+                const msg = await registerRes.text();
+                throw new Error(msg || "Registration failed.");
             }
 
-            alert("Account created! Please check your email to confirm.");
+            alert("Account created! Please check your email.");
+            setUsername("");
+            setEmail("");
+            setPassword("");
+            setProfilePicture(null);
             navigate("/login");
+
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
     };
-
 
     return (
         <div className="register-container">
