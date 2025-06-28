@@ -22,7 +22,7 @@ const Register: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await fetch("/api/authorization/register", {
+            const response = await fetch("/api/Authorization/Register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
