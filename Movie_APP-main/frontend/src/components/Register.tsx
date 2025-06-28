@@ -5,15 +5,9 @@ const Register: React.FC = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [profilePicture, setProfilePicture] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) setProfilePicture(file);
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,23 +15,6 @@ const Register: React.FC = () => {
         setError(null);
 
         try {
-            let profilePictureUrl = "";
-
-            if (profilePicture) {
-                const picForm = new FormData();
-                picForm.append("file", profilePicture);
-
-                const uploadRes = await fetch("/api/user/upload-profile-picture", {
-                    method: "POST",
-                    body: picForm,
-                });
-
-                if (!uploadRes.ok) throw new Error("Failed to upload profile picture.");
-
-                const { url } = await uploadRes.json();
-                profilePictureUrl = url;
-            }
-
             const response = await fetch("/api/authorization/register", {
                 method: "POST",
                 headers: {
@@ -46,8 +23,7 @@ const Register: React.FC = () => {
                 body: JSON.stringify({
                     username,
                     email,
-                    password,
-                    profilePictureUrl
+                    password
                 })
             });
 
@@ -60,7 +36,6 @@ const Register: React.FC = () => {
             setUsername("");
             setEmail("");
             setPassword("");
-            setProfilePicture(null);
             navigate("/login");
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred.");
@@ -68,7 +43,6 @@ const Register: React.FC = () => {
             setLoading(false);
         }
     };
-
 
     return (
         <div className="register-container">
@@ -96,11 +70,6 @@ const Register: React.FC = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                    />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
                     />
 
                     <button type="submit" disabled={loading}>
@@ -154,12 +123,6 @@ const Register: React.FC = () => {
                     border-radius: 8px;
                     background-color: #1b1b1b;
                     color: #fff;
-                }
-
-                .register-card input[type="file"] {
-                    color: #aaa;
-                    background-color: transparent;
-                    border: none;
                 }
 
                 .register-card button {
