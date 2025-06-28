@@ -23,11 +23,19 @@ export default function ProfilePage() {
 
         fetch(`${API}/User/GetById/${userId}`, { headers: auth })
             .then((res) => res.json())
-            .then((data) => setUser(data.response ?? data.result));
+            .then((data) => {
+                if (data.response || data.result) {
+                    setUser(data.response ?? data.result);
+                }
+            });
 
         fetch(`${API}/User/Count/${userId}`, { headers: auth })
             .then((res) => res.json())
-            .then((data) => setCounts(data));
+            .then((data) => {
+                if (data.watched !== undefined && data.recommended !== undefined) {
+                    setCounts(data);
+                }
+            });
     }, [userId, token]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,10 +49,11 @@ export default function ProfilePage() {
         try {
             const res = await fetch(`${API}/User/UploadProfilePicture/upload-profile-picture`, {
                 method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
                 body: formData,
             });
             const data = await res.json();
-            if (res.ok && user) {
+            if (res.ok && user && data.url) {
                 setUser({ ...user, profilePictureUrl: data.url });
             }
         } catch (err) {
@@ -60,7 +69,7 @@ export default function ProfilePage() {
                 <i className="bi bi-person-circle me-2" /> Profile
             </h2>
 
-            {user && (
+            {user ? (
                 <div>
                     <div>
                         {user.profilePictureUrl ? (
@@ -86,6 +95,8 @@ export default function ProfilePage() {
                     <p><strong>Watched Movies:</strong> {counts.watched}</p>
                     <p><strong>Recommended Movies:</strong> {counts.recommended}</p>
                 </div>
+            ) : (
+                <p>Loading profile...</p>
             )}
         </div>
     );
