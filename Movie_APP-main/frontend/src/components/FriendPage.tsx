@@ -6,7 +6,6 @@ const FriendPage: React.FC = () => {
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [eventDetails, setEventDetails] = useState<Record<string, any>>({});
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -36,36 +35,6 @@ const FriendPage: React.FC = () => {
 
         fetchProfile();
     }, [id]);
-
-    useEffect(() => {
-        const fetchAllEvents = async () => {
-            const token = localStorage.getItem("token");
-            if (!token || !data?.organizedEvents) return;
-
-            const results: Record<string, any> = {};
-            await Promise.all(
-                data.organizedEvents.map(async (event: any) => {
-                    try {
-                        const res = await fetch(
-                            `https://licenta-backend-nf1m.onrender.com/api/Event/by-id/${event.id}`,
-                            {
-                                headers: { Authorization: `Bearer ${token}` },
-                            }
-                        );
-                        const json = await res.json();
-                        results[event.id] = json.response;
-                    } catch (err) {
-                        console.error(`Failed to fetch event ${event.id}`, err);
-                    }
-                })
-            );
-            setEventDetails(results);
-        };
-
-        if (data?.organizedEvents?.length) {
-            fetchAllEvents();
-        }
-    }, [data]);
 
     if (loading) return <div className="text-light">Loading...</div>;
     if (error || !data) return <div className="text-danger">Failed to load profile.</div>;
@@ -145,29 +114,26 @@ const FriendPage: React.FC = () => {
                 </div>
 
                 <div className="col-md-4">
-                    <h5>📅 Events</h5>
+                    <h5>📅 Organized Events</h5>
                     <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
-                        {data.organizedEvents.map((e: any) => {
-                            const detail = eventDetails[e.id];
-                            return (
-                                <div key={e.id} className="mb-2 d-flex align-items-center">
-                                    {detail?.posterUrl && (
-                                        <img
-                                            src={detail.posterUrl}
-                                            alt={e.title}
-                                            width={50}
-                                            height={75}
-                                            className="me-2 rounded"
-                                            style={{ objectFit: "cover" }}
-                                        />
-                                    )}
-                                    <div>
-                                        <div>{e.title}</div>
-                                        <small>{new Date(e.date).toLocaleDateString()}</small>
-                                    </div>
+                        {data.organizedEvents.map((e: any) => (
+                            <div key={e.id} className="mb-2 d-flex align-items-center">
+                                {e.moviePosterUrl && (
+                                    <img
+                                        src={e.moviePosterUrl}
+                                        alt={e.title}
+                                        width={50}
+                                        height={75}
+                                        className="me-2 rounded"
+                                        style={{ objectFit: "cover" }}
+                                    />
+                                )}
+                                <div>
+                                    <div>{e.title}</div>
+                                    <small>{new Date(e.date).toLocaleDateString()}</small>
                                 </div>
-                            );
-                        })}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
