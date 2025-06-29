@@ -12,7 +12,7 @@ public class UserExtendedProfileDTO
 
     public List<MovieSimpleDTO> WatchedMovies { get; set; } = new();
     public List<MovieSimpleDTO> RecommendedMovies { get; set; } = new();
-    public List<EventSimpleDTO> OrganizedEvents { get; set; } = new();
+    public List<EventDTO> OrganizedEvents { get; set; } = new();
 }
 
 public class MovieSimpleDTO

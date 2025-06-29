@@ -266,7 +266,9 @@ public class UserService(
 
         var watched = await repository.ListAsync(new WatchedMoviesByUserSpec(userId), cancellationToken);
         var recommended = await repository.ListAsync(new RecommendedMoviesByUserSpec(userId), cancellationToken);
-        var events = await repository.ListAsync(new EventsOrganizedByUserSpec(userId), cancellationToken);
+
+        // Folosim EventDTO direct
+        var events = await repository.ListAsync(new EventProjectionSpec(userId, "Organizer"), cancellationToken);
 
         var dto = new UserExtendedProfileDTO
         {
@@ -291,13 +293,8 @@ public class UserService(
                 Title = m.Title,
                 PosterUrl = m.PosterUrl
             }).ToList(),
-
-            OrganizedEvents = events.Select(e => new EventSimpleDTO
-            {
-                Id = e.Id,
-                Title = e.Title,
-                Date = e.Date
-            }).ToList()
+            
+            OrganizedEvents = events
         };
 
         return ServiceResponse.ForSuccess(dto);
