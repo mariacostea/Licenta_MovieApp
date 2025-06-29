@@ -53,7 +53,7 @@ const Recommendation: React.FC = () => {
                 }}
             >
                 <div className="d-flex justify-content-between align-items-center flex-wrap px-4">
-                    <div className="d-flex flex-wrap gap-3">
+                    <div className="position-relative d-flex justify-content-center flex-wrap gap-3 px-4">
                         <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
                         <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                         <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
@@ -61,14 +61,23 @@ const Recommendation: React.FC = () => {
                         <button
                             className="btn btn-outline-danger btn-sm"
                             onClick={() => {
-                                localStorage.removeItem('token');
-                                localStorage.removeItem('userId');
-                                window.location.href = '/login';
+                                localStorage.removeItem("token");
+                                localStorage.removeItem("userId");
+                                window.location.href = "/login";
                             }}
                         >
                             🚪 Logout
                         </button>
+                        
+                        <a
+                            href="/profile"
+                            className="btn btn-secondary btn-sm position-absolute end-0 me-3"
+                            style={{ top: "50%", transform: "translateY(-50%)" }}
+                        >
+                            Profile
+                        </a>
                     </div>
+
 
                     <a href="/profile" className="btn btn-secondary btn-sm">👤 Profile</a>
                 </div>
