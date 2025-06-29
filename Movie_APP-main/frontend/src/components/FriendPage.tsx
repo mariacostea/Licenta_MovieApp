@@ -1,9 +1,8 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 
 const FriendPage: React.FC = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -11,18 +10,32 @@ const FriendPage: React.FC = () => {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`https://licenta-backend-nf1m.onrender.com/api/User/ExtendedProfile/${id}`, {
+                if (!token) {
+                    console.error("No token found");
+                    return;
+                }
+
+                const response = await fetch(`https://licenta-backend-nf1m.onrender.com/api/User/ExtendedProfile/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                setProfile(response.data.response); // <- corect: accesăm .response
+
+                const json = await response.json();
+                console.log("Fetched profile:", json);
+
+                if (response.ok) {
+                    setProfile(json.response); // backend-ul tău pune datele sub "response"
+                } else {
+                    console.error("Backend error:", json);
+                }
             } catch (error) {
                 console.error('Failed to fetch profile', error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
     }, [id]);
 
