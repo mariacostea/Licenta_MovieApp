@@ -84,24 +84,26 @@ const Feed: React.FC = () => {
                     zIndex: 1050,
                 }}
             >
-                <div className="d-flex flex-wrap gap-3">
-                    <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
-                    <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
-                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
-                    <a href="/people" className="btn btn-outline-light btn-sm">👥 People</a>
-                    <button
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={() => {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('userId');
-                            window.location.href = '/login';
-                        }}
-                    >
-                        🚪 Logout
-                    </button>
-                </div>
+                <div className="d-flex justify-content-between align-items-center flex-wrap px-4">
+                    <div className="d-flex flex-wrap gap-3">
+                        <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
+                        <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
+                        <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
+                        <a href="/people" className="btn btn-outline-light btn-sm">👥 People</a>
+                        <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => {
+                                localStorage.removeItem('token');
+                                localStorage.removeItem('userId');
+                                window.location.href = '/login';
+                            }}
+                        >
+                            🚪 Logout
+                        </button>
+                    </div>
 
-                <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
+                    <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
+                </div>
             </div>
             <h2 className="mb-4">📰 Feed</h2>
 
