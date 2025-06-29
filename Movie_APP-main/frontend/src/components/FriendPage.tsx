@@ -15,7 +15,7 @@ const FriendPage: React.FC = () => {
                     return;
                 }
 
-                const response = await fetch(`https://licenta-backend-nf1m.onrender.com/api/User/ExtendedProfile/${id}`, {
+                const response = await fetch(`https://licenta-backend-nf1m.onrender.com/api/User/GetExtendedProfile/ExtendedProfile/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
