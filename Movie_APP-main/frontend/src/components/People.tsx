@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useState } from "react";
-import TopNav    from "./TopNav";
+import TopNav from "./TopNav";
+
 interface User {
     id: string;
     name: string;
@@ -127,32 +128,8 @@ export default function People() {
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            <div
-                className="bg-dark py-3 border-bottom shadow"
-                style={{ position: "sticky", top: 0, width: "100%", zIndex: 1050 }}
-            >
-                <div className="d-flex justify-content-between align-items-center flex-wrap px-4">
-                    <div className="d-flex flex-wrap gap-3">
-                        <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
-                        <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
-                        <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
-                        <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
-                        <button
-                            className="btn btn-outline-danger btn-sm"
-                            onClick={() => {
-                                localStorage.removeItem('token');
-                                localStorage.removeItem('userId');
-                                window.location.href = '/login';
-                            }}
-                        >
-                            🚪 Logout
-                        </button>
-                    </div>
+            <TopNav />
 
-                    <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
-                </div>
-            </div>
-            
             <div className="container py-4">
                 <h2 className="mb-4">👥 People</h2>
 
@@ -207,7 +184,13 @@ export default function People() {
 
                     {tab === "friends" &&
                         (friends.length > 0 ? (
-                            friends.map((u) => renderUser(u))
+                            friends.map((u) =>
+                                renderUser(u, (
+                                    <a href={`/friend/${u.id}`} className="btn btn-sm btn-outline-light">
+                                        View Profile
+                                    </a>
+                                ))
+                            )
                         ) : (
                             <li>No friends</li>
                         ))}

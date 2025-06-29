@@ -24,6 +24,7 @@ public class UserController : AuthorizedController
 {
     private readonly WebAppDatabaseContext _db;
     private readonly ICloudinaryService _cloudinaryService;
+    private readonly IUserService _userService;
 
     public UserController(
         IUserService userService,
@@ -32,7 +33,8 @@ public class UserController : AuthorizedController
     {
         _db = db;
         _cloudinaryService = cloudinaryService;
-    }                                                                                // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
+        _userService = userService;
+    }                                                              // Also, you may pass constructor parameters to a base class constructor and call as specific constructor from the base class.
     /// <summary>
     /// This method implements the Read operation (R from CRUD) on a user. 
     /// </summary>
@@ -225,6 +227,17 @@ public class UserController : AuthorizedController
             recommended = recommendedCount
         });
     }
+    
+    [HttpGet("ExtendedProfile/{userId:guid}")]
+    [Authorize]
+    public async Task<ActionResult<RequestResponse<UserExtendedProfileDTO>>> GetExtendedProfile(Guid userId, CancellationToken cancellationToken)
+    {
+        var result = await UserService.GetExtendedProfile(userId, cancellationToken);
+        return this.FromServiceResponse(result);
+    }
+
+
+
 }
 
 

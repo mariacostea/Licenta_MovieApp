@@ -258,6 +258,51 @@ public class UserService(
         return ServiceResponse<List<UserDTO>>.ForSuccess(availableUsers);
     }
 
+    public async Task<ServiceResponse<UserExtendedProfileDTO>> GetExtendedProfile(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await repository.GetAsync(new UserProjectionSpec(userId), cancellationToken);
+        if (user == null)
+            return ServiceResponse.FromError<UserExtendedProfileDTO>(CommonErrors.UserNotFound);
+
+        var watched = await repository.ListAsync(new WatchedMoviesByUserSpec(userId), cancellationToken);
+        var recommended = await repository.ListAsync(new RecommendedMoviesByUserSpec(userId), cancellationToken);
+        var events = await repository.ListAsync(new EventsOrganizedByUserSpec(userId), cancellationToken);
+
+        var dto = new UserExtendedProfileDTO
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            ProfilePictureUrl = user.ProfilePictureUrl,
+
+            WatchedCount = watched.Count,
+            RecommendedCount = recommended.Count,
+
+            WatchedMovies = watched.Select(m => new MovieSimpleDTO
+            {
+                Id = m.Id,
+                Title = m.Title,
+                PosterUrl = m.PosterUrl
+            }).ToList(),
+
+            RecommendedMovies = recommended.Select(m => new MovieSimpleDTO
+            {
+                Id = m.Id,
+                Title = m.Title,
+                PosterUrl = m.PosterUrl
+            }).ToList(),
+
+            OrganizedEvents = events.Select(e => new EventSimpleDTO
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Date = e.Date
+            }).ToList()
+        };
+
+        return ServiceResponse.ForSuccess(dto);
+    }
+
 
     
 }

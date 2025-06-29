@@ -12,6 +12,7 @@ import WatchedMovies from "./components/WatchedMovies";
 import Feedback from './components/Feedback';
 import RecommendedMovies from './components/RecommendedMovies';
 import ProfilePage from "./components/ProfilePage";
+import FriendPage from "./components/FriendPage";
 
 function App() {
     return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="recommended" element={<RecommendedMovies />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/friend/:id" element={<FriendPage />} />
             </Routes>
         </Router>
     );

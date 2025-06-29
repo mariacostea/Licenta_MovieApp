@@ -63,5 +63,8 @@ public interface IUserService
     
     Task<ServiceResponse<List<UserDTO>>> GetAvailableUsers(Guid currentUserId, CancellationToken cancellationToken = default);
 
+    Task<ServiceResponse<UserExtendedProfileDTO>> GetExtendedProfile(Guid userId,
+        CancellationToken cancellationToken = default);
+
 
 }
