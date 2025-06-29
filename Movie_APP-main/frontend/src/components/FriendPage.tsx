@@ -1,98 +1,53 @@
-﻿import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+﻿import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const FriendPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [profile, setProfile] = useState<any>(null);
+    const [data, setData] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    console.error("No token found");
-                    return;
-                }
+        const fetchProfile = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                setError("Token missing");
+                setLoading(false);
+                return;
+            }
 
-                const response = await fetch(`https://licenta-backend-nf1m.onrender.com/api/User/GetExtendedProfile/ExtendedProfile/${id}`, {
+            try {
+                const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/User/GetExtendedProfile/ExtendedProfile/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
 
-                const json = await response.json();
-                console.log("Fetched profile:", json);
-
-                if (response.ok) {
-                    setProfile(json.response); // backend-ul tău pune datele sub "response"
-                } else {
-                    console.error("Backend error:", json);
-                }
-            } catch (error) {
-                console.error('Failed to fetch profile', error);
+                const json = await res.json();
+                setData(json);
+            } catch (err) {
+                console.error("Fetch error:", err);
+                setError("Network or fetch error");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
+        fetchProfile();
     }, [id]);
 
-    if (loading) return <div className="text-light">Loading...</div>;
-    if (!profile) return <div className="text-danger">Failed to load profile.</div>;
-
     return (
-        <div className="container mt-4 text-light">
-            <div className="d-flex align-items-center gap-3">
-                {profile.profilePictureUrl ? (
-                    <img src={profile.profilePictureUrl} alt="Profile" className="rounded-circle" width={80} height={80} />
-                ) : (
-                    <div className="rounded-circle bg-secondary" style={{ width: 80, height: 80 }}></div>
-                )}
-                <div>
-                    <h3>{profile.name}</h3>
-                    <p>{profile.email}</p>
-                    <p>Watched: {profile.watchedCount} | Recommended: {profile.recommendedCount}</p>
-                </div>
-            </div>
+        <div className="container text-light py-4">
+            <h3>Test FriendPage</h3>
+            <p>User ID from URL: <strong>{id}</strong></p>
 
-            <hr className="bg-light" />
-
-            <div className="row">
-                <div className="col-md-4">
-                    <h5>🎬 Watched Movies</h5>
-                    <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        {profile.watchedMovies.map((m: any) => (
-                            <div key={m.id} className="mb-2">
-                                <img src={m.posterUrl} alt={m.title} width={50} /> {m.title}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="col-md-4">
-                    <h5>⭐ Recommended Movies</h5>
-                    <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        {profile.recommendedMovies.map((m: any) => (
-                            <div key={m.id} className="mb-2">
-                                <img src={m.posterUrl} alt={m.title} width={50} /> {m.title}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="col-md-4">
-                    <h5>📅 Events</h5>
-                    <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                        {profile.organizedEvents.map((e: any) => (
-                            <div key={e.id} className="mb-2">
-                                {e.title} - {new Date(e.date).toLocaleDateString()}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            {loading && <p>Loading...</p>}
+            {error && <p className="text-danger">Error: {error}</p>}
+            {data && (
+                <pre style={{ backgroundColor: "#222", padding: "1em", borderRadius: "5px" }}>
+                    {JSON.stringify(data, null, 2)}
+                </pre>
+            )}
         </div>
     );
 };
