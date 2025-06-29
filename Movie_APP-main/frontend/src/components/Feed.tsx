@@ -84,11 +84,11 @@ const Feed: React.FC = () => {
                     zIndex: 1050,
                 }}
             >
-                <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
-                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
-                    <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
+                <div className="d-flex flex-wrap gap-3">
                     <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
-                    <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
+                    <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
+                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
+                    <a href="/people" className="btn btn-outline-light btn-sm">👥 People</a>
                     <button
                         className="btn btn-outline-danger btn-sm"
                         onClick={() => {
@@ -100,8 +100,9 @@ const Feed: React.FC = () => {
                         🚪 Logout
                     </button>
                 </div>
+
+                <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
             </div>
-            <TopNav />
             <h2 className="mb-4">📰 Feed</h2>
 
             <div className="btn-group mb-4">

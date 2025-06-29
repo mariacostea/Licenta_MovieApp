@@ -70,7 +70,7 @@ const Recommendation: React.FC = () => {
                         </button>
                     </div>
 
-                    <a href="/profile" className="btn btn-secondary btn-sm">👤 Profile</a>
+                    <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
                 </div>
             </div>
             <h2 className="mb-3">⭐ Recommendations</h2>

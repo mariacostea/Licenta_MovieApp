@@ -183,11 +183,11 @@ const EventsPage: React.FC = () => {
                         zIndex: 1050,
                     }}
             >
-                    <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
-                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
+                <div className="d-flex flex-wrap gap-3">
                     <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
+                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
                     <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
-                    <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
+                    <a href="/people" className="btn btn-outline-light btn-sm">👥 People</a>
                     <button
                         className="btn btn-outline-danger btn-sm"
                         onClick={() => {
@@ -199,8 +199,9 @@ const EventsPage: React.FC = () => {
                         🚪 Logout
                     </button>
                 </div>
+
+                <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
             </div>
-            <TopNav />
             <h2>🗓️Events</h2>
 
             <div className="btn-group mb-4">
