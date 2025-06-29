@@ -52,7 +52,6 @@ const Recommendation: React.FC = () => {
                     zIndex: 1050,
                 }}
             >
-                <TopNav />
                 <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
                     <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
@@ -70,6 +69,7 @@ const Recommendation: React.FC = () => {
                     </button>
                 </div>
             </div>
+            <TopNav />
             <h2 className="mb-3">⭐ Recommendations</h2>
 
             <div className="mb-4">

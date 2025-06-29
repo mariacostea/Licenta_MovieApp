@@ -7,7 +7,7 @@ const TopNav: React.FC = () => {
             style={{ zIndex: 1050 }}
         >
             <div className="container d-flex justify-content-end">
-                <a href="/profile" className="btn btn-outline-light btn-sm">Profile</a>
+                <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
             </div>
         </div>
     );

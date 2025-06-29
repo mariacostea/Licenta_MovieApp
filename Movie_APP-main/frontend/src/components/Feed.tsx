@@ -84,7 +84,6 @@ const Feed: React.FC = () => {
                     zIndex: 1050,
                 }}
             >
-            <TopNav  />  
                 <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
                     <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
@@ -101,7 +100,8 @@ const Feed: React.FC = () => {
                         🚪 Logout
                     </button>
                 </div>
-            </div>    
+            </div>
+            <TopNav />
             <h2 className="mb-4">📰 Feed</h2>
 
             <div className="btn-group mb-4">

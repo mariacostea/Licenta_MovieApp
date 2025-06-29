@@ -127,7 +127,6 @@ export default function People() {
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            <TopNav />
             <div
                 className="bg-dark py-3 border-bottom shadow"
                 style={{ position: "sticky", top: 0, width: "100%", zIndex: 1050 }}
@@ -150,6 +149,8 @@ export default function People() {
                 </div>
             </div>
 
+            <TopNav />
+            
             <div className="container py-4">
                 <h2 className="mb-4">👥 People</h2>
 

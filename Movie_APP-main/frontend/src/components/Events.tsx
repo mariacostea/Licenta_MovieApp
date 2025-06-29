@@ -174,7 +174,6 @@ const EventsPage: React.FC = () => {
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            <TopNav />
             <div
                     className="bg-dark py-3 border-bottom shadow"
                     style={{
@@ -201,7 +200,7 @@ const EventsPage: React.FC = () => {
                     </button>
                 </div>
             </div>
-            
+            <TopNav />
             <h2>🗓️Events</h2>
 
             <div className="btn-group mb-4">
