@@ -6,8 +6,8 @@ const TopNav: React.FC = () => {
             className="bg-dark py-2 border-bottom position-sticky top-0 z-3"
             style={{ zIndex: 1050 }}
         >
-            <div className="container d-flex justify-content-center gap-3">
-                <a href="/profile" className="btn btn-outline-light btn-sm">👤 Profile</a>
+            <div className="container d-flex justify-content-end">
+                <a href="/profile" className="btn btn-outline-light btn-sm">Profile</a>
             </div>
         </div>
     );
