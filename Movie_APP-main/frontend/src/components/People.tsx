@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import TopNav from "./TopNav";
 
 interface User {
@@ -186,9 +187,9 @@ export default function People() {
                         (friends.length > 0 ? (
                             friends.map((u) =>
                                 renderUser(u, (
-                                    <a href={`/friend/${u.id}`} className="btn btn-sm btn-outline-light">
+                                    <Link to={`/friend/${u.id}`} className="btn btn-sm btn-outline-light">
                                         View Profile
-                                    </a>
+                                    </Link>
                                 ))
                             )
                         ) : (

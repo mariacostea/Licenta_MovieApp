@@ -11,12 +11,12 @@ const FriendPage: React.FC = () => {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`https://licenta-backend-nf1m.onrender.com/api/User/GetExtendedProfile/ExtendedProfile/${id}`, {
+                const response = await axios.get(`https://licenta-backend-nf1m.onrender.com/api/User/ExtendedProfile/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                setProfile(response.data.data);
+                setProfile(response.data.response); // <- corect: accesăm .response
             } catch (error) {
                 console.error('Failed to fetch profile', error);
             } finally {
