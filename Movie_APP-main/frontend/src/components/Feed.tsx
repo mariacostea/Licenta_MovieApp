@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import TopNav from "../components/TopNav";
+import TopNav    from "./TopNav";
 
 interface WatchedMovieDTO {
     movieTitle: string;
@@ -75,7 +75,33 @@ const Feed: React.FC = () => {
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            <TopNav />
+            <div
+                className="bg-dark py-3 border-bottom shadow"
+                style={{
+                    position: "sticky",
+                    top: 0,
+                    width: "100%",
+                    zIndex: 1050,
+                }}
+            >
+            <TopNav  />  
+                <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
+                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
+                    <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
+                    <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
+                    <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
+                    <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('userId');
+                            window.location.href = '/login';
+                        }}
+                    >
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>    
             <h2 className="mb-4">📰 Feed</h2>
 
             <div className="btn-group mb-4">

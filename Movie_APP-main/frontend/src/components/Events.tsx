@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useState } from "react";
 import EditPopup from "./EditPopup";
+import TopNav    from "./TopNav";
 
 interface Event {
     id: string;
@@ -173,6 +174,7 @@ const EventsPage: React.FC = () => {
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
+            <TopNav />
             <div
                     className="bg-dark py-3 border-bottom shadow"
                     style={{

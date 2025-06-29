@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useState } from "react";
 import MovieCard, { MovieCardProps } from "../components/MovieCard";
+import TopNav    from "./TopNav";
 
 const Recommendation: React.FC = () => {
     const [type, setType] = useState("genre");
@@ -51,6 +52,7 @@ const Recommendation: React.FC = () => {
                     zIndex: 1050,
                 }}
             >
+                <TopNav />
                 <div className="d-flex justify-content-center flex-wrap gap-3 px-4">
                     <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
                     <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
