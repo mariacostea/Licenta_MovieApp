@@ -117,20 +117,28 @@ const FriendPage: React.FC = () => {
                     <h5>📅 Organized Events</h5>
                     <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
                         {data.organizedEvents.map((e: any) => (
-                            <div key={e.id} className="mb-2 d-flex align-items-center">
+                            <div key={e.id} className="mb-3 d-flex">
                                 {e.moviePosterUrl && (
                                     <img
                                         src={e.moviePosterUrl}
                                         alt={e.title}
                                         width={50}
                                         height={75}
-                                        className="me-2 rounded"
+                                        className="me-3 rounded"
                                         style={{ objectFit: "cover" }}
                                     />
                                 )}
                                 <div>
-                                    <div>{e.title}</div>
-                                    <small>{new Date(e.date).toLocaleDateString()}</small>
+                                    <div className="fw-bold">{e.title}</div>
+                                    <div>
+                                        📍 {e.location || "Unknown location"}
+                                    </div>
+                                    <div>
+                                        📆 {new Date(e.date).toLocaleString()}
+                                    </div>
+                                    <div>
+                                        👥 {e.maxParticipants - e.freeSeats} / {e.maxParticipants} participants
+                                    </div>
                                 </div>
                             </div>
                         ))}
