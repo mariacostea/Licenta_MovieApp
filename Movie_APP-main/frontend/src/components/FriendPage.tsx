@@ -1,8 +1,9 @@
 ﻿import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const FriendPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -86,7 +87,8 @@ const FriendPage: React.FC = () => {
                                     width={50}
                                     height={75}
                                     className="me-2 rounded"
-                                    style={{ objectFit: "cover" }}
+                                    style={{ objectFit: "cover", cursor: "pointer" }}
+                                    onClick={() => navigate(`/movies/${m.id}`)}
                                 />
                                 <span>{m.title}</span>
                             </div>
@@ -105,7 +107,8 @@ const FriendPage: React.FC = () => {
                                     width={50}
                                     height={75}
                                     className="me-2 rounded"
-                                    style={{ objectFit: "cover" }}
+                                    style={{ objectFit: "cover", cursor: "pointer" }}
+                                    onClick={() => navigate(`/movies/${m.id}`)}
                                 />
                                 <span>{m.title}</span>
                             </div>
@@ -130,12 +133,8 @@ const FriendPage: React.FC = () => {
                                 )}
                                 <div>
                                     <div className="fw-bold">{e.title}</div>
-                                    <div>
-                                        📍 {e.location || "Unknown location"}
-                                    </div>
-                                    <div>
-                                        📆 {new Date(e.date).toLocaleString()}
-                                    </div>
+                                    <div>📍 {e.location || "Unknown location"}</div>
+                                    <div>📆 {new Date(e.date).toLocaleString()}</div>
                                     <div>
                                         👥 {e.maxParticipants - e.freeSeats} / {e.maxParticipants} participants
                                     </div>
