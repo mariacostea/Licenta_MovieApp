@@ -209,7 +209,10 @@ const MovieDetails: React.FC = () => {
                                     <button
                                         type="button"
                                         className="btn btn-warning btn-sm me-2"
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            console.log("Modify clicked");
                                             setEditingReviewId(rev.id);
                                             setEditingContent(rev.content);
                                             setEditingRating(rev.rating);
