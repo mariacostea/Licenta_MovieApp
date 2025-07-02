@@ -166,25 +166,34 @@ const MovieDetails: React.FC = () => {
                                     const token = localStorage.getItem("token");
                                     if (!token || !movie?.id) return;
 
-                                    await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Update/${rev.id}`, {
+                                    const updatedReview = {
+                                        id: rev.id,
+                                        content: editingContent.trim(),
+                                        rating: editingRating,
+                                        movieId: movie.id,
+                                        userId: rev.userId,
+                                        author: rev.author,
+                                    };
+
+                                    const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Update/${rev.id}`, {
                                         method: "PUT",
                                         headers: {
                                             "Content-Type": "application/json",
                                             Authorization: `Bearer ${token}`,
                                         },
-                                        body: JSON.stringify({
-                                            id: rev.id,
-                                            content: editingContent.trim(),
-                                            rating: editingRating,
-                                            movieId: movie.id,
-                                            userId: rev.userId,
-                                            author: rev.author,
-                                        }),
+                                        body: JSON.stringify(updatedReview),
                                     });
 
-                                    setEditingReviewId(null);
-                                    if (movie?.title && movie.year != null) await fetchReviews(movie.title, movie.year);
+                                    if (res.ok) {
+                                        setReviews(prev =>
+                                            prev.map(r => r.id === rev.id ? { ...r, ...updatedReview } : r)
+                                        );
+                                        setEditingReviewId(null);
+                                    } else {
+                                        console.error("Failed to update review");
+                                    }
                                 }}
+
                             >Save</button>
                             <button className="btn btn-secondary btn-sm" onClick={() => setEditingReviewId(null)}>Cancel</button>
                         </>
@@ -199,7 +208,6 @@ const MovieDetails: React.FC = () => {
                                             setEditingReviewId(rev.id);
                                             setEditingContent(rev.content);
                                             setEditingRating(rev.rating);
-                                            window.scrollTo({ top: 0, behavior: "smooth" });
                                         }}
                                     >Edit</button>
                                     <button
