@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { MovieCardProps } from "./MovieCard";
 import ActorCard from "./ActorCard";
-import { getUserIdFromToken } from "../utils/jwt";
+import { getUserIdFromToken, getUserNameFromToken } from "../utils/jwt";
 
 interface Review {
     id: string;
@@ -24,6 +24,7 @@ interface CrewMember {
 const MovieDetails: React.FC = () => {
     const { id } = useParams();
     const userId = getUserIdFromToken();
+    const userName = getUserNameFromToken()?.toLowerCase().trim();
 
     const [movie, setMovie] = useState<(MovieCardProps & { description: string }) | null>(null);
     const [reviews, setReviews] = useState<Review[]>([]);
@@ -39,10 +40,19 @@ const MovieDetails: React.FC = () => {
             const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/GetByMovieTitleAndYear?title=${encodeURIComponent(title)}&year=${year}`);
             const json = await res.json();
 
-            const reviewsWithOwnership = json.result.map((r: Review) => ({
-                ...r,
-                isOwnReview: r.userId === userId,
-            }));
+            console.log("User ID from token:", userId);
+            console.log("Username from token:", userName);
+            console.log("Fetched reviews:", json.result);
+
+            const reviewsWithOwnership = json.result.map((r: Review) => {
+                const matchById = r.userId === userId;
+                const matchByAuthor = r.author?.toLowerCase().trim() === userName;
+
+                return {
+                    ...r,
+                    isOwnReview: matchById || matchByAuthor,
+                };
+            });
 
             setReviews(reviewsWithOwnership);
         } catch (err) {
@@ -148,8 +158,13 @@ const MovieDetails: React.FC = () => {
                     {/* 🔍 DEBUG INFO */}
                     <small className="text-muted d-block">
                         <strong>Review userId:</strong> {rev.userId} <br />
+                        <strong>Review author:</strong> {rev.author} <br />
                         <strong>Logged userId:</strong> {userId} <br />
-                        <strong>Match:</strong> {rev.userId === userId ? "✅ YES" : "❌ NO"}
+                        <strong>Logged userName:</strong> {userName} <br />
+                        <strong>Match:</strong>{" "}
+                        {rev.userId === userId || rev.author?.toLowerCase().trim() === userName
+                            ? "✅ YES"
+                            : "❌ NO"}
                     </small>
 
                     {rev.isOwnReview && (
