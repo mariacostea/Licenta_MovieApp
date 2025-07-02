@@ -161,6 +161,7 @@ const MovieDetails: React.FC = () => {
                                 onChange={(e) => setEditingRating(parseInt(e.target.value))}
                             />
                             <button
+                                type="button"
                                 className="btn btn-primary btn-sm me-2"
                                 onClick={async () => {
                                     const token = localStorage.getItem("token");
@@ -193,9 +194,12 @@ const MovieDetails: React.FC = () => {
                                         console.error("Failed to update review");
                                     }
                                 }}
-
                             >Save</button>
-                            <button className="btn btn-secondary btn-sm" onClick={() => setEditingReviewId(null)}>Cancel</button>
+                            <button
+                                type="button"
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setEditingReviewId(null)}
+                            >Cancel</button>
                         </>
                     ) : (
                         <>
@@ -203,6 +207,7 @@ const MovieDetails: React.FC = () => {
                             {rev.isOwnReview && (
                                 <div className="mt-1">
                                     <button
+                                        type="button"
                                         className="btn btn-warning btn-sm me-2"
                                         onClick={() => {
                                             setEditingReviewId(rev.id);
@@ -211,6 +216,7 @@ const MovieDetails: React.FC = () => {
                                         }}
                                     >Edit</button>
                                     <button
+                                        type="button"
                                         className="btn btn-danger btn-sm"
                                         onClick={async () => {
                                             const token = localStorage.getItem("token");
@@ -226,7 +232,6 @@ const MovieDetails: React.FC = () => {
                             )}
                         </>
                     )}
-                    
                 </div>
             ))}
 
@@ -235,7 +240,11 @@ const MovieDetails: React.FC = () => {
                     <h4 className="mt-4">Add a Review</h4>
                     <textarea className="form-control mb-2" value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write your review" />
                     <input type="number" className="form-control mb-2" min={1} max={10} value={reviewRating} onChange={(e) => setReviewRating(parseInt(e.target.value))} />
-                    <button className="btn btn-success" onClick={handleSubmitReview}>Add Review</button>
+                    <button
+                        type="button"
+                        className="btn btn-success"
+                        onClick={handleSubmitReview}
+                    >Add Review</button>
                 </>
             )}
         </div>
