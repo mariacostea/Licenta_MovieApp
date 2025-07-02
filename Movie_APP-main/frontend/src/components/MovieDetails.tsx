@@ -155,18 +155,6 @@ const MovieDetails: React.FC = () => {
                     <p><strong>{rev.isOwnReview ? "You" : rev.author || "Unknown"}</strong></p>
                     <p><strong>⭐ {rev.rating}</strong> – {rev.content}</p>
 
-                    {/* 🔍 DEBUG INFO */}
-                    <small className="text-muted d-block">
-                        <strong>Review userId:</strong> {rev.userId} <br />
-                        <strong>Review author:</strong> {rev.author} <br />
-                        <strong>Logged userId:</strong> {userId} <br />
-                        <strong>Logged userName:</strong> {userName} <br />
-                        <strong>Match:</strong>{" "}
-                        {rev.userId === userId || rev.author?.toLowerCase().trim() === userName
-                            ? "✅ YES"
-                            : "❌ NO"}
-                    </small>
-
                     {rev.isOwnReview && (
                         <div className="mt-1">
                             <button className="btn btn-warning btn-sm me-2" onClick={() => {
