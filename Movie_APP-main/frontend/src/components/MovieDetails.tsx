@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { MovieCardProps } from "./MovieCard";
 import ActorCard from "./ActorCard";
-import { getUserNameFromToken } from "../utils/jwt";
+import { getUserIdFromToken } from "../utils/jwt";
 
 interface Review {
     id: string;
@@ -23,7 +23,7 @@ interface CrewMember {
 
 const MovieDetails: React.FC = () => {
     const { id } = useParams();
-    const userName = getUserNameFromToken()?.toLowerCase().trim();
+    const userId = getUserIdFromToken();
 
     const [movie, setMovie] = useState<(MovieCardProps & { description: string }) | null>(null);
     const [reviews, setReviews] = useState<Review[]>([]);
@@ -41,7 +41,7 @@ const MovieDetails: React.FC = () => {
 
             const reviewsWithOwnership = json.result.map((r: Review) => ({
                 ...r,
-                isOwnReview: r.author?.toLowerCase().trim() === userName,
+                isOwnReview: r.userId === userId,
             }));
 
             setReviews(reviewsWithOwnership);
