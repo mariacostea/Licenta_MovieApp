@@ -11,6 +11,7 @@ interface Review {
     userId: string;
     author?: string;
     isOwnReview?: boolean;
+    movieId?: string;
 }
 
 interface CrewMember {
@@ -93,7 +94,7 @@ const MovieDetails: React.FC = () => {
             if (res.ok) {
                 setReviewText("");
                 setReviewRating(1);
-                if (!movie?.title || movie.year === null || movie.year === undefined) return;
+                if (!movie?.title || movie.year == null) return;
                 await fetchReviews(movie.title, movie.year);
             } else {
                 console.error("Failed to submit review:", await res.text());
@@ -148,15 +149,24 @@ const MovieDetails: React.FC = () => {
                             <input type="number" className="form-control mb-2" value={editingRating} min={1} max={10} onChange={(e) => setEditingRating(parseInt(e.target.value))} />
                             <button className="btn btn-primary btn-sm me-2" onClick={async () => {
                                 const token = localStorage.getItem("token");
-                                if (!token) return;
+                                if (!token || !movie?.id) return;
+
                                 await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Update/${rev.id}`, {
                                     method: "PUT",
                                     headers: {
                                         "Content-Type": "application/json",
                                         Authorization: `Bearer ${token}`,
                                     },
-                                    body: JSON.stringify({ content: editingContent, rating: editingRating }),
+                                    body: JSON.stringify({
+                                        id: rev.id,
+                                        content: editingContent.trim(),
+                                        rating: editingRating,
+                                        movieId: movie.id,
+                                        userId: rev.userId,
+                                        author: rev.author
+                                    }),
                                 });
+
                                 setEditingReviewId(null);
                                 if (movie?.title && movie.year != null) await fetchReviews(movie.title, movie.year);
                             }}>Save</button>
