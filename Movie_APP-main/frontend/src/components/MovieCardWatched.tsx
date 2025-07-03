@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface MovieCardProps {
@@ -29,20 +29,10 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                                                         onUnwatch,
                                                     }) => {
     const navigate = useNavigate();
-    const [recommended, setRecommended] = useState(isRecommended);
-
-    useEffect(() => {
-        setRecommended(isRecommended);
-    }, [isRecommended]);
 
     const handleMarkAsRecommended = async () => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in.");
-
-        if (recommended) {
-            alert("This movie is already recommended.");
-            return;
-        }
 
         try {
             const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/MarkAsRecommended/recommend", {
@@ -55,15 +45,10 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
             });
 
             if (!res.ok) {
-                let errorMessage = "Error marking movie as recommended.";
-                try {
-                    const data = await res.json();
-                    errorMessage = data?.error?.message || errorMessage;
-                } catch {}
-                throw new Error(errorMessage);
+                const data = await res.json();
+                throw new Error(data?.error?.message || "Error marking movie as recommended.");
             }
 
-            setRecommended(true);
             onRecommended?.(id);
             alert("Movie successfully marked as recommended.");
         } catch (err) {
@@ -86,15 +71,10 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
             });
 
             if (!res.ok) {
-                let errorMessage = "Failed to unrecommend movie.";
-                try {
-                    const data = await res.json();
-                    errorMessage = data?.error?.message || errorMessage;
-                } catch {}
-                throw new Error(errorMessage);
+                const data = await res.json();
+                throw new Error(data?.error?.message || "Failed to unrecommend movie.");
             }
 
-            setRecommended(false);
             onUnrecommended?.(id);
             alert("Movie was removed from recommendations.");
         } catch (err) {
@@ -117,12 +97,8 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
             });
 
             if (!res.ok) {
-                let errorMessage = "Failed to unmark movie as watched.";
-                try {
-                    const data = await res.json();
-                    errorMessage = data?.error?.message || errorMessage;
-                } catch {}
-                throw new Error(errorMessage);
+                const data = await res.json();
+                throw new Error(data?.error?.message || "Failed to unmark movie as watched.");
             }
 
             onUnwatch?.(id);
@@ -153,7 +129,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                         Details
                     </button>
 
-                    {!recommended && (
+                    {!isRecommended && (
                         <button
                             className="btn btn-outline-warning btn-sm"
                             onClick={handleMarkAsRecommended}
@@ -162,7 +138,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                         </button>
                     )}
 
-                    {recommended && (
+                    {isRecommended && (
                         <button
                             className="btn btn-outline-danger btn-sm"
                             onClick={handleUnrecommend}

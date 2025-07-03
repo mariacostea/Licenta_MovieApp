@@ -21,9 +21,22 @@ const WatchedMovies: React.FC = () => {
             const ids = jsonIds.result as string[];
 
             const moviePromises = ids.map(id =>
-                fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/${id}`)
+                fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
                     .then(res => res.json())
-                    .then(data => data.result as MovieCardProps)
+                    .then(data => {
+                        const movie = data.result as MovieCardProps;
+
+                        // Asigură-te că isRecommended e setat din backend sau fals dacă lipsește
+                        if (movie.isRecommended === undefined) {
+                            movie.isRecommended = false;
+                        }
+
+                        return movie;
+                    })
             );
 
             const movieData = await Promise.all(moviePromises);
@@ -37,13 +50,25 @@ const WatchedMovies: React.FC = () => {
         }
     };
 
+    const handleUnwatch = (id: string) => {
+        setMovies(prev => prev.filter(m => m.id !== id));
+    };
+
+    const handleRecommended = (id: string) => {
+        setMovies(prev =>
+            prev.map(m => m.id === id ? { ...m, isRecommended: true } : m)
+        );
+    };
+
+    const handleUnrecommended = (id: string) => {
+        setMovies(prev =>
+            prev.map(m => m.id === id ? { ...m, isRecommended: false } : m)
+        );
+    };
+
     useEffect(() => {
         loadWatchedMovies();
     }, []);
-
-    const handleUnwatch = (id: string) => {
-        setMovies(prev => prev.filter(movie => movie.id !== id));
-    };
 
     return (
         <>
@@ -61,9 +86,10 @@ const WatchedMovies: React.FC = () => {
                             <div className="col" key={m.id}>
                                 <MovieCardWatched
                                     {...m}
-                                    isRecommended={false}
-                                    showUnwatchButton={true}
+                                    onRecommended={handleRecommended}
+                                    onUnrecommended={handleUnrecommended}
                                     onUnwatch={handleUnwatch}
+                                    showUnwatchButton={true}
                                 />
                             </div>
                         ))}
