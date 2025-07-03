@@ -53,3 +53,8 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
+.custom-datepicker {
+  transform: scale(0.85);
+  transform-origin: top left;
+}

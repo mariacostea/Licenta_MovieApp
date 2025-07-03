@@ -88,19 +88,24 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                 </div>
 
                 <div style={{ zIndex: 2000 }}>
-                    <DatePicker
-                        selected={date}
-                        onChange={(date: Date | null) => date && setDate(date)}
-                        showTimeSelect
-                        timeFormat="HH:mm"
-                        timeIntervals={15}
-                        dateFormat="Pp"
-                        minDate={minDate}
-                        className="form-control mb-2"
-                        calendarClassName="high-z-index-datepicker"
-                        popperPlacement="right-start"
-                        popperContainer={({ children }) => <div style={{ zIndex: 3000, position: 'relative' }}>{children}</div>}
-                    />
+                    <div style={{ zIndex: 2000 }}>
+                        <DatePicker
+                            selected={date}
+                            onChange={(date: Date | null) => date && setDate(date)}
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={15}
+                            dateFormat="Pp"
+                            minDate={minDate}
+                            className="form-control mb-2"
+                            calendarClassName="custom-datepicker"
+                            popperPlacement="right-start"
+                            popperContainer={({ children }) => (
+                                <div style={{ zIndex: 3000, position: 'relative' }}>{children}</div>
+                            )}
+                        />
+                    </div>
+
                 </div>
 
                 <input
