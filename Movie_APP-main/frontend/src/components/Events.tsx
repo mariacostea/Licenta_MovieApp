@@ -67,6 +67,24 @@ const EventsPage: React.FC = () => {
         } catch { alert("Error joining event."); }
     };
 
+    const unattendEvent = async (eventId: string) => {
+        const token = localStorage.getItem("token");
+        if (!token) return alert("You must be logged in!");
+        if (!window.confirm("Are you sure you want to leave this event?")) return;
+
+        try {
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/unattend/${eventId}`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error("Failed to unattend.");
+            alert("You have left the event.");
+            fetchEvents(view);
+        } catch {
+            alert("Error leaving event.");
+        }
+    };
+
     const deleteEvent = async (eventId: string) => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in!");
@@ -221,6 +239,10 @@ const EventsPage: React.FC = () => {
                                                 <button className="btn btn-sm btn-warning mt-2 me-2" onClick={() => setEditingEvent(event)}>Modify</button>
                                                 <button className="btn btn-sm btn-danger mt-2" onClick={() => deleteEvent(event.id)}>Delete Event</button>
                                             </>
+                                        )}
+
+                                        {view === "participation" && (
+                                            <button className="btn btn-sm btn-danger mt-2" onClick={() => unattendEvent(event.id)}>Unattend</button>
                                         )}
                                     </div>
                                 </div>

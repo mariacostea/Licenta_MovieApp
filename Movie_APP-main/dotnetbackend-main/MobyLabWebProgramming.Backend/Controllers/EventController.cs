@@ -152,6 +152,18 @@ public class EventController(IEventService eventService) : ControllerBase
 
         return Ok(ServiceResponse.ForSuccess());
     }
+    
+    [HttpPost("unattend/{eventId}")]
+    [Authorize]
+    public async Task<ActionResult<ServiceResponse>> UnattendEvent([FromRoute] Guid eventId)
+    {
+        var userId = GetLoggedInUserId();
+
+        await eventService.UnattendEventAsync(eventId, userId);
+
+        return Ok(ServiceResponse.ForSuccess());
+    }
+
 
 
 }

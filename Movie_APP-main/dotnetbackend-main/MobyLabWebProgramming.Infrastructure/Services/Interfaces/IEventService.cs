@@ -23,5 +23,6 @@ public interface IEventService
     
     Task AttendEventAsync(Guid eventId, Guid userId);
     
+    Task UnattendEventAsync(Guid eventId, Guid userId);
 
 }

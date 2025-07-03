@@ -227,4 +227,22 @@ public class EventService : IEventService
         return await _repo.ListAsync(new EventProjectionSpec(userId, "Organizer"));
     }
 
+    public async Task UnattendEventAsync(Guid eventId, Guid userId)
+    {
+        var userEvent = await _repo.GetAsync(new UserEventSpec(eventId, userId));
+
+        if (userEvent == null)
+            throw new ServerException(HttpStatusCode.BadRequest, "User is not attending this event.");
+
+        await _repo.DeleteAsync<UserEvent>(userEvent.UserId);
+
+        var ev = await _repo.GetAsync<Event>(eventId);
+        if (ev != null)
+        {
+            ev.FreeSeats++;
+            await _repo.UpdateAsync(ev);
+        }
+    }
+
+    
 }
