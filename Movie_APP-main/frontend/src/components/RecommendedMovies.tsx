@@ -13,8 +13,8 @@ const RecommendedMovies: React.FC = () => {
         try {
             const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetRecommendedMovies/recommended", {
                 headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             const jsonIds = await resIds.json();
@@ -27,7 +27,6 @@ const RecommendedMovies: React.FC = () => {
             );
 
             const movieData = await Promise.all(moviePromises);
-
             setMovies(movieData);
         } catch (err) {
             console.error("Error loading recommended movies:", err);
@@ -75,7 +74,6 @@ const RecommendedMovies: React.FC = () => {
                 <h1>Recommended Movies</h1>
 
                 {loading && <p>Loading...</p>}
-
                 {!loading && movies.length === 0 && <p>No recommended movies yet.</p>}
 
                 {!loading && (
