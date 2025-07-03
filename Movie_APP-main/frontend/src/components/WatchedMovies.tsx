@@ -41,6 +41,10 @@ const WatchedMovies: React.FC = () => {
         loadWatchedMovies();
     }, []);
 
+    const handleUnwatch = (id: string) => {
+        setMovies(prev => prev.filter(movie => movie.id !== id));
+    };
+
     return (
         <>
             <NavigationBar onSearch={() => {}} />
@@ -59,6 +63,7 @@ const WatchedMovies: React.FC = () => {
                                     {...m}
                                     isRecommended={false}
                                     showUnwatchButton={true}
+                                    onUnwatch={handleUnwatch}
                                 />
                             </div>
                         ))}
