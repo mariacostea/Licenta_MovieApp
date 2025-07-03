@@ -11,16 +11,34 @@ const WatchedMovies: React.FC = () => {
         const token = localStorage.getItem("token");
 
         try {
-            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const res = await fetch(
+                "https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
             if (!res.ok) throw new Error("Failed to load watched movies");
 
             const json = await res.json();
-            const movieData = json.result as MovieCardProps[];
+            const result = json.result;
+
+            if (!Array.isArray(result)) {
+                throw new Error("Invalid response format");
+            }
+
+            // verifică că fiecare are id, title etc.
+            const movieData: MovieCardProps[] = result.map((m: any) => ({
+                id: m.id,
+                title: m.title,
+                year: m.year,
+                averageRating: m.averageRating ?? 0,
+                genres: m.genres ?? [],
+                posterUrl: m.posterUrl,
+                isRecommended: m.isRecommended ?? false,
+            }));
 
             setMovies(movieData);
         } catch (err) {
