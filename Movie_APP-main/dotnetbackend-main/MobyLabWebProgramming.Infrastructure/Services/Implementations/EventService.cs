@@ -87,20 +87,25 @@ public class EventService : IEventService
         if (dto.MaxParticipants > 10)
             throw new ServerException(HttpStatusCode.BadRequest, "Userul standard poate seta maxim 10 participanți.");
 
+        var joinedParticipants = ev.MaxParticipants - ev.FreeSeats;
+
+        if (dto.MaxParticipants < joinedParticipants)
+        {
+            throw new ServerException(HttpStatusCode.BadRequest,
+                $"Nu poți seta un număr de participanți mai mic decât numărul de participanți înscriși deja ({joinedParticipants}).");
+        }
+
         ev.Title = dto.Title;
         ev.Description = dto.Description;
         ev.Location = dto.Location;
         ev.Date = dto.Date;
-        ev.MovieId = dto.MovieId; 
-        
-        if (ev.FreeSeats == ev.MaxParticipants)
-        {
-            ev.MaxParticipants = dto.MaxParticipants;
-            ev.FreeSeats = dto.MaxParticipants;
-        }
-        
-        await _repo.UpdateAsync(ev);
+        ev.MovieId = dto.MovieId;
 
+        ev.MaxParticipants = dto.MaxParticipants;
+        ev.FreeSeats = dto.MaxParticipants - joinedParticipants;
+
+        await _repo.UpdateAsync(ev);
+        
         return new EventDTO
         {
             Id = ev.Id,
