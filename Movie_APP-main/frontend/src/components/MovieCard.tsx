@@ -12,11 +12,14 @@ export interface MovieCardProps {
     posterUrl?: string;
     isWatched?: boolean;
     onMarked?: (id: string) => void;
+    showUnwatchButton?: boolean;
+    onUnwatch?: (id: string) => void;
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
                                                  id, title, year, averageRating, genres, posterUrl,
-                                                 isWatched: initialIsWatched, onMarked
+                                                 isWatched: initialIsWatched, onMarked,
+                                                 showUnwatchButton = false, onUnwatch
                                              }) => {
     const navigate = useNavigate();
     const [isWatched, setIsWatched] = useState(initialIsWatched ?? false);
@@ -48,6 +51,29 @@ const MovieCard: React.FC<MovieCardProps> = ({
             if (!res.ok) throw new Error("Error marking movie as watched.");
             setIsWatched(true);
             onMarked?.(id);
+        } catch (err) {
+            alert((err as Error).message);
+        }
+    };
+
+    const handleUnwatch = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return alert("You must be logged in.");
+
+        try {
+            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/unmarkaswatched", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ title, year }),
+            });
+
+            if (!res.ok) throw new Error("Error unmarking movie as watched.");
+            setIsWatched(false);
+            onUnwatch?.(id);
+            alert("Movie was unmarked as watched.");
         } catch (err) {
             alert((err as Error).message);
         }
@@ -134,15 +160,27 @@ const MovieCard: React.FC<MovieCardProps> = ({
                 <p className="card-text mb-1">{year ?? "—"} • {genres.join(", ")}</p>
                 <p className="card-text">⭐ {averageRating.toFixed(1)}</p>
 
-                <div className="d-flex gap-2 mt-2">
+                <div className="d-flex gap-2 mt-2 flex-wrap">
                     <button className="btn btn-outline-info btn-sm" onClick={() => navigate(`/movies/${id}`)}>Details</button>
-                    <button
-                        className={`btn btn-sm ${isWatched ? "btn-success" : "btn-outline-success"}`}
-                        onClick={markAsWatched}
-                        disabled={isWatched}
-                    >
-                        {isWatched ? "Watched" : "Mark as Watched"}
-                    </button>
+
+                    {!isWatched && (
+                        <button
+                            className="btn btn-outline-success btn-sm"
+                            onClick={markAsWatched}
+                        >
+                            Mark as Watched
+                        </button>
+                    )}
+
+                    {isWatched && (
+                        <button
+                            className="btn btn-outline-secondary btn-sm"
+                            onClick={handleUnwatch}
+                        >
+                            Mark as Not Watched Yet
+                        </button>
+                    )}
+
                     <button className="btn btn-outline-warning btn-sm" onClick={() => setShowEventForm(!showEventForm)}>
                         Create Event
                     </button>
