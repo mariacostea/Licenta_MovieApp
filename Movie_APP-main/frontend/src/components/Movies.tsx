@@ -1,8 +1,8 @@
 ﻿import React, { useEffect, useState, useCallback } from "react";
 import MovieCard, { MovieCardProps } from "./MovieCard";
-import Pagination       from "./Pagination";
-import NavigationBar    from "./NavigationBar";
-import FilterMenu       from "./FilterMenu";
+import Pagination from "./Pagination";
+import NavigationBar from "./NavigationBar";
+import FilterMenu from "./FilterMenu";
 
 export interface PagedResult {
     page: number;
@@ -16,35 +16,47 @@ type ActiveFilter = { year?: string; genre?: string } | null;
 const pageSize = 20;
 
 const Movies: React.FC = () => {
-    const [movies,        setMovies]        = useState<MovieCardProps[]>([]);
-    const [currentPage,   setPage]          = useState(1);
-    const [totalPages,    setTotalPages]    = useState(1);
-    const [loading,       setLoading]       = useState(false);
-    const [watchedIds,    setWatchedIds]    = useState<string[]>([]);
-    const [filter,        setFilter]        = useState<ActiveFilter>(null);
+    const [movies, setMovies] = useState<MovieCardProps[]>([]);
+    const [currentPage, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [watchedIds, setWatchedIds] = useState<Set<string>>(new Set());
+    const [filter, setFilter] = useState<ActiveFilter>(null);
+
+    const buildKey = (title: string, year: number) =>
+        `${title.trim().toLowerCase()}-${year}`;
 
     const mergeWithWatched = useCallback(
-        (list: MovieCardProps[]) =>
-            list
-                .filter(m => !watchedIds.includes(m.id))
-                .map(m => ({ ...m, isWatched: false })),
+        (list: MovieCardProps[]) => {
+            return list
+                .filter(m => {
+                    const key = buildKey(m.title, m.year? m.year : 0);
+                    return !watchedIds.has(key);
+                })
+                .map(m => ({ ...m, isWatched: false }));
+        },
         [watchedIds]
     );
 
-
-    const fetchWatched = async (): Promise<string[]> => {
+    const fetchWatched = async (): Promise<Set<string>> => {
         const token = localStorage.getItem("token");
-        if (!token) return [];
+        if (!token) return new Set();
 
-        const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+            "https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched",
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
         const json = await res.json().catch(() => ({ result: [] }));
         const watchedList = json.result ?? [];
-        return watchedList.map((m: any) => m.id);
+
+        return new Set(
+            watchedList.map(
+                (m: any) => `${m.title.trim().toLowerCase()}-${m.year}`
+            )
+        );
     };
-
-
 
     const fetchPage = async (page: number, f: ActiveFilter = filter) => {
         const base =
@@ -56,23 +68,28 @@ const Movies: React.FC = () => {
             page: page.toString(),
             pageSize: pageSize.toString(),
         });
-        if (f?.year)  qs.append("year",  f.year);
+        if (f?.year) qs.append("year", f.year);
         if (f?.genre) qs.append("genre", f.genre);
 
-        const res  = await fetch(`${base}?${qs.toString()}`);
+        const res = await fetch(`${base}?${qs.toString()}`);
         const json = await res.json();
         return json.result as PagedResult;
     };
-    
+
     const load = useCallback(
         async (page = 1, f: ActiveFilter = filter) => {
             setLoading(true);
             try {
-                const [ids, pageData] = await Promise.all([fetchWatched(), fetchPage(page, f)]);
+                const [ids, pageData] = await Promise.all([
+                    fetchWatched(),
+                    fetchPage(page, f),
+                ]);
                 setWatchedIds(ids);
                 setMovies(mergeWithWatched(pageData.data));
                 setPage(pageData.page);
-                setTotalPages(Math.max(1, Math.ceil(pageData.totalCount / pageData.pageSize)));
+                setTotalPages(
+                    Math.max(1, Math.ceil(pageData.totalCount / pageData.pageSize))
+                );
             } catch (err) {
                 console.error(err);
                 alert("Eroare la încărcare!");
@@ -82,21 +99,33 @@ const Movies: React.FC = () => {
         },
         [filter, mergeWithWatched]
     );
-    
-    useEffect(() => { load(1); }, []);
-    
-    const handleMarked = (id: string) => {
-        setWatchedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+
+    useEffect(() => {
+        load(1);
+    }, []);
+
+    const handleMarked = (title: string, year: number) => {
+        const key = buildKey(title, year);
+        setWatchedIds(prev => {
+            if (prev.has(key)) return prev;
+            const newSet = new Set(prev);
+            newSet.add(key);
+            return newSet;
+        });
     };
-    
+
     const searchMovie = async (title: string) => {
         setLoading(true);
         try {
             const [ids, list] = await Promise.all([
                 fetchWatched(),
-                fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/search-by-title?title=${encodeURIComponent(title)}`)
-                    .then((r) => r.json())
-                    .then((j) => j.result as MovieCardProps[]),
+                fetch(
+                    `https://licenta-backend-nf1m.onrender.com/api/movie/search-by-title?title=${encodeURIComponent(
+                        title
+                    )}`
+                )
+                    .then(r => r.json())
+                    .then(j => j.result as MovieCardProps[]),
             ]);
             if (!list.length) return alert("N‑am găsit nimic!");
             setWatchedIds(ids);
@@ -111,14 +140,16 @@ const Movies: React.FC = () => {
             setLoading(false);
         }
     };
-    
+
     const applyFilter = (f: { year: string; genre: string }) => {
         const active: ActiveFilter =
-            f.year || f.genre ? { year: f.year || undefined, genre: f.genre || undefined } : null;
+            f.year || f.genre
+                ? { year: f.year || undefined, genre: f.genre || undefined }
+                : null;
         setFilter(active);
         load(1, active);
     };
-    
+
     const handlePageChange = (p: number) => {
         if (p !== currentPage && p >= 1 && p <= totalPages) load(p);
     };
@@ -130,16 +161,27 @@ const Movies: React.FC = () => {
                 style={{ zIndex: 1040 }}
             >
                 <div className="container d-flex justify-content-center gap-3">
-                    <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
-                    <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
-                    <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
-                    <a href="/people" className="btn btn-outline-light btn-sm">👥  People</a>
+                    <a
+                        href="/recommendation"
+                        className="btn btn-outline-light btn-sm"
+                    >
+                        ⭐ Recommendations
+                    </a>
+                    <a href="/events" className="btn btn-outline-light btn-sm">
+                        📅 Events
+                    </a>
+                    <a href="/feed" className="btn btn-outline-light btn-sm">
+                        📰 Feed
+                    </a>
+                    <a href="/people" className="btn btn-outline-light btn-sm">
+                        👥 People
+                    </a>
                     <button
                         className="btn btn-outline-danger btn-sm"
                         onClick={() => {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('userId');
-                            window.location.href = '/login';
+                            localStorage.removeItem("token");
+                            localStorage.removeItem("userId");
+                            window.location.href = "/login";
                         }}
                     >
                         🚪 Logout
@@ -159,9 +201,14 @@ const Movies: React.FC = () => {
                 {!loading && (
                     <>
                         <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                            {movies.map((m) => (
+                            {movies.map(m => (
                                 <div className="col" key={m.id}>
-                                    <MovieCard {...m} onMarked={handleMarked} />
+                                    <MovieCard
+                                        {...m}
+                                        onMarked={() =>
+                                            handleMarked(m.title, m.year? m.year : 0)
+                                        }
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -181,4 +228,3 @@ const Movies: React.FC = () => {
 };
 
 export default Movies;
-
