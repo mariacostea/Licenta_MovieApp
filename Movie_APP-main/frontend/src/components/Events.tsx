@@ -1,7 +1,8 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import EditPopup from "./EditPopup";
 import NavigationBar from "./NavigationBar";
 import FilterMenuEvents from "./FilterMenuEvents";
+import { Offcanvas } from "bootstrap";
 
 interface Event {
     id: string;
@@ -30,6 +31,10 @@ const EventsPage: React.FC = () => {
     const [view, setView] = useState<ViewMode>("all");
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
+    const panel = useRef<HTMLDivElement>(null);
+
+    const bs = () => panel.current && Offcanvas.getOrCreateInstance(panel.current);
+
     const fetchEvents = async (mode: ViewMode) => {
         setLoading(true);
         let url = "https://licenta-backend-nf1m.onrender.com/api/Event/unattended";
@@ -39,7 +44,9 @@ const EventsPage: React.FC = () => {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+            const res = await fetch(url, {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
             const data: ApiResponse<Event[]> = await res.json();
             if (!res.ok) throw new Error(data as unknown as string);
             setEvents(data.result);
@@ -51,19 +58,27 @@ const EventsPage: React.FC = () => {
         }
     };
 
-    useEffect(() => { fetchEvents(view); }, [view]);
+    useEffect(() => {
+        fetchEvents(view);
+    }, [view]);
 
     const attendEvent = async (eventId: string) => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in!");
         try {
-            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/attend/${eventId}`, {
-                method: "POST", headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await fetch(
+                `https://licenta-backend-nf1m.onrender.com/api/Event/attend/${eventId}`,
+                {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
             if (!res.ok) throw new Error("Failed to attend.");
             alert("Successfully joined the event!");
             fetchEvents(view);
-        } catch { alert("Error joining event."); }
+        } catch {
+            alert("Error joining event.");
+        }
     };
 
     const unattendEvent = async (eventId: string) => {
@@ -72,10 +87,13 @@ const EventsPage: React.FC = () => {
         if (!window.confirm("Are you sure you want to leave this event?")) return;
 
         try {
-            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/unattend/${eventId}`, {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await fetch(
+                `https://licenta-backend-nf1m.onrender.com/api/Event/unattend/${eventId}`,
+                {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
             if (!res.ok) throw new Error("Failed to unattend.");
             alert("You have left the event.");
             fetchEvents(view);
@@ -89,9 +107,13 @@ const EventsPage: React.FC = () => {
         if (!token) return alert("You must be logged in!");
         if (!window.confirm("Are you sure you want to delete this event?")) return;
         try {
-            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/delete/${eventId}`, {
-                method: "DELETE", headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await fetch(
+                `https://licenta-backend-nf1m.onrender.com/api/Event/delete/${eventId}`,
+                {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
             if (!res.ok) throw new Error("Failed to delete event.");
             alert("Event deleted successfully.");
             fetchEvents(view);
@@ -105,11 +127,17 @@ const EventsPage: React.FC = () => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in!");
         try {
-            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Event/update/${updatedEvent.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify(updatedEvent)
-            });
+            const res = await fetch(
+                `https://licenta-backend-nf1m.onrender.com/api/Event/update/${updatedEvent.id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(updatedEvent),
+                }
+            );
             if (!res.ok) throw new Error("Failed to update event.");
             alert("Event updated successfully.");
             fetchEvents(view);
@@ -119,52 +147,57 @@ const EventsPage: React.FC = () => {
         }
     };
 
-    const handleFilter = async (filter: { type: string; value: string }) => {
-        if (!filter.value.trim()) {
+    const handleFilters = async (filters: {
+        location?: string;
+        day?: string;
+        fullDate?: string;
+        month?: string;
+        movie?: string;
+    }) => {
+        setLoading(true);
+
+        const token = localStorage.getItem("token");
+        const headers: HeadersInit | undefined = token
+            ? { Authorization: `Bearer ${token}` }
+            : undefined;
+
+        const queries: string[] = [];
+
+        if (filters.location) queries.push(`location=${encodeURIComponent(filters.location)}`);
+        if (filters.day) queries.push(`date=${filters.day}`);
+        if (filters.fullDate) queries.push(`dateTime=${filters.fullDate}`);
+        if (filters.month) {
+            const [year, month] = filters.month.split("-");
+            if (!year || !month) {
+                alert("Use YYYY-MM format for month.");
+                setLoading(false);
+                return;
+            }
+            queries.push(`year=${year}&month=${month}`);
+        }
+        if (filters.movie) queries.push(`title=${encodeURIComponent(filters.movie)}`);
+
+        let url = "";
+        if (filters.location) url = `/api/Event/by-location?${queries.join("&")}`;
+        else if (filters.day) url = `/api/Event/by-day?${queries.join("&")}`;
+        else if (filters.fullDate) url = `/api/Event/by-full-date?${queries.join("&")}`;
+        else if (filters.month) url = `/api/Event/by-month?${queries.join("&")}`;
+        else if (filters.movie) url = `/api/Event/by-movie-title?${queries.join("&")}`;
+        else {
             fetchEvents(view);
             return;
         }
 
-        setLoading(true);
-        let url = "";
-
-        switch (filter.type) {
-            case "location":
-                url = `/api/Event/by-location?location=${encodeURIComponent(filter.value)}`;
-                break;
-            case "day":
-                url = `/api/Event/by-day?date=${filter.value}`;
-                break;
-            case "full-date":
-                url = `/api/Event/by-full-date?dateTime=${filter.value}`;
-                break;
-            case "month": {
-                const [year, month] = filter.value.split("-");
-                if (!year || !month) {
-                    alert("Use YYYY-MM format for month.");
-                    setLoading(false);
-                    return;
-                }
-                url = `/api/Event/by-month?year=${year}&month=${month}`;
-                break;
-            }
-            case "movie":
-                url = `/api/Event/by-movie-title?title=${encodeURIComponent(filter.value)}`;
-                break;
-            default:
-                setLoading(false);
-                return;
-        }
-
         try {
-            const res = await fetch(`https://licenta-backend-nf1m.onrender.com${url}`);
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com${url}`, { headers });
             const data: ApiResponse<Event[]> = await res.json();
             if (!res.ok) throw new Error(data as unknown as string);
             setEvents(data.result);
         } catch {
-            alert("Error applying filter.");
+            alert("Error applying filters.");
         } finally {
             setLoading(false);
+            bs()?.hide();
         }
     };
 
@@ -181,9 +214,9 @@ const EventsPage: React.FC = () => {
                     <button className={`btn btn-outline-info ${view === "participation" ? "active" : ""}`} onClick={() => setView("participation")}>Participation Events</button>
                 </div>
 
-                <div className="mb-4">
-                    <FilterMenuEvents onApply={(f) => handleFilter(f)} />
-                </div>
+                <button className="btn btn-primary mb-3" onClick={() => bs()?.show()}>
+                    Filter
+                </button>
 
                 {loading ? (
                     <div className="text-center">
@@ -194,9 +227,14 @@ const EventsPage: React.FC = () => {
                 ) : (
                     <div className="row g-4">
                         {events.map((event) => (
-                            <div key={event.id} className="col-6 col-sm-4 col-md-3" style={{ flex: '0 0 20%', maxWidth: '20%' }}>
+                            <div key={event.id} className="col-6 col-sm-4 col-md-3" style={{ flex: "0 0 20%", maxWidth: "20%" }}>
                                 <div className="card h-100 bg-dark text-white border-secondary shadow">
-                                    <img src={event.moviePosterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"} alt={event.movieTitle ?? "No title"} className="card-img-top object-fit-cover" style={{ height: 300 }} />
+                                    <img
+                                        src={event.moviePosterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
+                                        alt={event.movieTitle ?? "No title"}
+                                        className="card-img-top object-fit-cover"
+                                        style={{ height: 300 }}
+                                    />
                                     <div className="card-body">
                                         <h5 className="card-title">{event.title}</h5>
                                         <p className="card-text"><strong>🎮 Movie:</strong> {event.movieTitle ?? "Unknown"}</p>
@@ -236,6 +274,8 @@ const EventsPage: React.FC = () => {
                         }}
                     />
                 )}
+
+                <FilterMenuEvents ref={panel} onApply={handleFilters} />
             </div>
         </div>
     );
