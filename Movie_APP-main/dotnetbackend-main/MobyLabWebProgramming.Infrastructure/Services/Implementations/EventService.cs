@@ -229,12 +229,13 @@ public class EventService : IEventService
 
     public async Task UnattendEventAsync(Guid eventId, Guid userId)
     {
-        var userEvent = await _repo.GetAsync(new UserEventSpec(eventId, userId));
+        var spec = new UserEventSpec(eventId, userId);
+        var userEvent = await _repo.GetAsync(spec);
 
         if (userEvent == null)
             throw new ServerException(HttpStatusCode.BadRequest, "User is not attending this event.");
 
-        await _repo.DeleteAsync<UserEvent>(userEvent.UserId);
+        await _repo.DeleteAsync<UserEvent>(spec);
 
         var ev = await _repo.GetAsync<Event>(eventId);
         if (ev != null)
@@ -243,6 +244,7 @@ public class EventService : IEventService
             await _repo.UpdateAsync(ev);
         }
     }
+
 
     
 }
