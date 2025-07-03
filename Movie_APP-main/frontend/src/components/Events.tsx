@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import EditPopup from "./EditPopup";
 import NavigationBar from "./NavigationBar";
-import FilterMenu from "./FilterMenu";
+import FilterMenuEvents from "./FilterMenuEvents";
 
 interface Event {
     id: string;
@@ -30,7 +30,7 @@ const EventsPage: React.FC = () => {
     const [view, setView] = useState<ViewMode>("all");
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
-    const fetchEvents = async (mode: ViewMode, filter?: { year?: string; genre?: string }) => {
+    const fetchEvents = async (mode: ViewMode) => {
         setLoading(true);
         let url = "https://licenta-backend-nf1m.onrender.com/api/Event/unattended";
 
@@ -119,16 +119,58 @@ const EventsPage: React.FC = () => {
         }
     };
 
-    const handleFilter = (filter: { year?: string; genre?: string }) => {
-        console.log("Applied filter: ", filter);
-        fetchEvents(view, filter);
+    const handleFilter = async (filter: { type: string; value: string }) => {
+        if (!filter.value.trim()) {
+            fetchEvents(view);
+            return;
+        }
+
+        setLoading(true);
+        let url = "";
+
+        switch (filter.type) {
+            case "location":
+                url = `/api/Event/by-location?location=${encodeURIComponent(filter.value)}`;
+                break;
+            case "day":
+                url = `/api/Event/by-day?date=${filter.value}`;
+                break;
+            case "full-date":
+                url = `/api/Event/by-full-date?dateTime=${filter.value}`;
+                break;
+            case "month": {
+                const [year, month] = filter.value.split("-");
+                if (!year || !month) {
+                    alert("Use YYYY-MM format for month.");
+                    setLoading(false);
+                    return;
+                }
+                url = `/api/Event/by-month?year=${year}&month=${month}`;
+                break;
+            }
+            case "movie":
+                url = `/api/Event/by-movie-title?title=${encodeURIComponent(filter.value)}`;
+                break;
+            default:
+                setLoading(false);
+                return;
+        }
+
+        try {
+            const res = await fetch(`https://licenta-backend-nf1m.onrender.com${url}`);
+            const data: ApiResponse<Event[]> = await res.json();
+            if (!res.ok) throw new Error(data as unknown as string);
+            setEvents(data.result);
+        } catch {
+            alert("Error applying filter.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            <NavigationBar onSearch={(query) => {
-                console.log("Search query: ", query);
-            }} />
+            <NavigationBar onSearch={(q) => console.log("Search: ", q)} />
 
             <div className="container py-3">
                 <h2 className="mb-3">🗓️ Events</h2>
@@ -140,7 +182,7 @@ const EventsPage: React.FC = () => {
                 </div>
 
                 <div className="mb-4">
-                    <FilterMenu onApply={handleFilter} />
+                    <FilterMenuEvents onApply={(f) => handleFilter(f)} />
                 </div>
 
                 {loading ? (
