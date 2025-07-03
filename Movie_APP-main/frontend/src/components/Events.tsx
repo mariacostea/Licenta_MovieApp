@@ -1,5 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import EditPopup from "./EditPopup";
+import NavigationBar from "./NavigationBar";
+import FilterMenu from "./FilterMenu";
 
 interface Event {
     id: string;
@@ -21,17 +23,14 @@ interface ApiResponse<T> {
 }
 
 type ViewMode = "all" | "my" | "participation";
-type FilterMode = "none" | "location" | "day" | "month" | "movie";
 
 const EventsPage: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState<ViewMode>("all");
-    const [filterMode, setFilterMode] = useState<FilterMode>("none");
-    const [filterValue, setFilterValue] = useState("");
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
-    const fetchEvents = async (mode: ViewMode) => {
+    const fetchEvents = async (mode: ViewMode, filter?: { year?: string; genre?: string }) => {
         setLoading(true);
         let url = "https://licenta-backend-nf1m.onrender.com/api/Event/unattended";
 
@@ -120,71 +119,16 @@ const EventsPage: React.FC = () => {
         }
     };
 
-    const applyFilter = async () => {
-        if (!filterValue.trim()) return;
-        setLoading(true);
-        let url = "";
-        switch (filterMode) {
-            case "location":
-                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-location?location=${encodeURIComponent(filterValue)}`;
-                break;
-            case "day":
-                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-day?date=${filterValue}`;
-                break;
-            case "month": {
-                const [year, month] = filterValue.split("-");
-                if (!year || !month) {
-                    alert("Please enter month as YYYY-MM");
-                    setLoading(false);
-                    return;
-                }
-                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-month?year=${year}&month=${month}`;
-                break;
-            }
-            case "movie":
-                url = `https://licenta-backend-nf1m.onrender.com/api/Event/by-movie-title?title=${encodeURIComponent(filterValue)}`;
-                break;
-            default:
-                setLoading(false);
-                return;
-        }
-
-        try {
-            const res = await fetch(url);
-            const data: ApiResponse<Event[]> = await res.json();
-            if (!res.ok) throw new Error(data as unknown as string);
-            setEvents(data.result);
-        } catch {
-            alert("Error applying filter.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const resetFilter = () => {
-        setFilterMode("none");
-        setFilterValue("");
-        fetchEvents(view);
+    const handleFilter = (filter: { year?: string; genre?: string }) => {
+        console.log("Applied filter: ", filter);
+        fetchEvents(view, filter);
     };
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            <div className="bg-dark py-3 border-bottom shadow" style={{ position: "sticky", top: 0, width: "100%", zIndex: 1050 }}>
-                <div className="d-flex justify-content-between align-items-center flex-wrap px-4">
-                    <div className="d-flex flex-wrap gap-3">
-                        <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
-                        <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
-                        <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
-                        <a href="/people" className="btn btn-outline-light btn-sm">👥 People</a>
-                        <button className="btn btn-outline-danger btn-sm" onClick={() => {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('userId');
-                            window.location.href = '/login';
-                        }}>🚪 Logout</button>
-                    </div>
-                    <a href="/profile" className="btn btn-secondary btn-sm">Profile</a>
-                </div>
-            </div>
+            <NavigationBar onSearch={(query) => {
+                console.log("Search query: ", query);
+            }} />
 
             <div className="container py-3">
                 <h2 className="mb-3">🗓️ Events</h2>
@@ -195,19 +139,8 @@ const EventsPage: React.FC = () => {
                     <button className={`btn btn-outline-info ${view === "participation" ? "active" : ""}`} onClick={() => setView("participation")}>Participation Events</button>
                 </div>
 
-                <div className="mb-4 d-flex align-items-center gap-2">
-                    <select className="form-select w-auto" value={filterMode} onChange={(e) => setFilterMode(e.target.value as FilterMode)}>
-                        <option value="none">No filter</option>
-                        <option value="location">Location</option>
-                        <option value="day">Date (yyyy-mm-dd)</option>
-                        <option value="month">Month (yyyy-mm)</option>
-                        <option value="movie">Movie Title</option>
-                    </select>
-
-                    <input type="text" className="form-control w-auto" placeholder="Enter filter value" value={filterValue} onChange={(e) => setFilterValue(e.target.value)} disabled={filterMode === "none"} />
-
-                    <button className="btn btn-secondary" onClick={applyFilter} disabled={filterMode === "none"}>Apply Filter</button>
-                    <button className="btn btn-outline-danger" onClick={resetFilter}>Clear Filter</button>
+                <div className="mb-4">
+                    <FilterMenu onApply={handleFilter} />
                 </div>
 
                 {loading ? (
