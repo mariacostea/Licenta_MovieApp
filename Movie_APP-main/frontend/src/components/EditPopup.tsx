@@ -97,8 +97,9 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                         dateFormat="Pp"
                         minDate={minDate}
                         className="form-control mb-2"
-                        calendarClassName="react-datepicker-calendar-high-z"
+                        calendarClassName="high-z-index-datepicker"
                         popperPlacement="bottom-start"
+                        popperContainer={({ children }) => <div style={{ zIndex: 3000, position: 'relative' }}>{children}</div>}
                     />
                 </div>
 
