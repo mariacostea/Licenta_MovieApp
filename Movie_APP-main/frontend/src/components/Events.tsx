@@ -208,15 +208,17 @@ const EventsPage: React.FC = () => {
             <div className="container py-3">
                 <h2 className="mb-3">🗓️ Events</h2>
 
-                <div className="btn-group mb-4">
-                    <button className={`btn btn-outline-primary ${view === "all" ? "active" : ""}`} onClick={() => setView("all")}>All Events</button>
-                    <button className={`btn btn-outline-success ${view === "my" ? "active" : ""}`} onClick={() => setView("my")}>My Events</button>
-                    <button className={`btn btn-outline-info ${view === "participation" ? "active" : ""}`} onClick={() => setView("participation")}>Participation Events</button>
-                </div>
+                <div className="d-flex flex-wrap gap-2 mb-4">
+                    <div className="btn-group">
+                        <button className={`btn btn-outline-primary ${view === "all" ? "active" : ""}`} onClick={() => setView("all")}>All Events</button>
+                        <button className={`btn btn-outline-success ${view === "my" ? "active" : ""}`} onClick={() => setView("my")}>My Events</button>
+                        <button className={`btn btn-outline-info ${view === "participation" ? "active" : ""}`} onClick={() => setView("participation")}>Participation Events</button>
+                    </div>
 
-                <button className="btn btn-primary mb-3" onClick={() => bs()?.show()}>
-                    Filter
-                </button>
+                    <button className="btn btn-primary" onClick={() => bs()?.show()}>
+                        Filter
+                    </button>
+                </div>
 
                 {loading ? (
                     <div className="text-center">
