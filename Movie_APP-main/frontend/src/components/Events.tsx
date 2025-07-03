@@ -217,7 +217,7 @@ const EventsPage: React.FC = () => {
                         {events.map((event) => (
                             <div
                                 key={event.id}
-                                className="col-6 col-sm-4 col-md-3 col-lg-2"
+                                className="col-12 col-sm-6 col-md-4 col-lg-3"
                             >
                                 <div className="card h-100 bg-dark text-white border-secondary shadow">
                                     <img
