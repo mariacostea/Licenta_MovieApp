@@ -90,7 +90,8 @@ public class UserMovieController : ControllerBase
                 Genres = um.Movie.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
                 PosterUrl = um.Movie.PosterUrl,
                 IsWatched = um.IsWatched,
-                IsRecommended = um.IsRecommended
+                IsRecommended = um.IsRecommended,
+                AverageRating = um.Movie.AverageRating,
             })
             .ToListAsync();
 

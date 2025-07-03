@@ -8,5 +8,5 @@ public class MovieUserDto {
     public string PosterUrl { get; set; }
     public bool IsRecommended { get; set; }
     public bool IsWatched { get; set; }
-    public float Rating { get; set; }
+    public double Rating { get; set; }
 }

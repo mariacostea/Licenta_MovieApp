@@ -28,13 +28,12 @@ const WatchedMovies: React.FC = () => {
             if (!Array.isArray(result)) {
                 throw new Error("Invalid response format");
             }
-
-            // verifică că fiecare are id, title etc.
+            
             const movieData: MovieCardProps[] = result.map((m: any) => ({
                 id: m.id,
                 title: m.title,
                 year: m.year,
-                averageRating: m.averageRating,
+                averageRating: m.averageRating ?? 0,
                 genres: m.genres ?? [],
                 posterUrl: m.posterUrl,
                 isRecommended: m.isRecommended ?? false,
