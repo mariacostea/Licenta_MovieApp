@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface MovieCardProps {
@@ -31,9 +31,18 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
     const navigate = useNavigate();
     const [recommended, setRecommended] = useState(isRecommended);
 
+    useEffect(() => {
+        setRecommended(isRecommended);
+    }, [isRecommended]);
+
     const handleMarkAsRecommended = async () => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in.");
+
+        if (recommended) {
+            alert("This movie is already recommended.");
+            return;
+        }
 
         try {
             const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/MarkAsRecommended/recommend", {
