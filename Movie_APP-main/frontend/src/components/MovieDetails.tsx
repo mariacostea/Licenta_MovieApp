@@ -101,6 +101,11 @@ const MovieDetails: React.FC = () => {
             return;
         }
 
+        if (reviewRating < 1 || reviewRating > 10) {
+            alert("Rating must be between 1 and 10.");
+            return;
+        }
+
         try {
             const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Add`, {
                 method: "POST",
@@ -127,6 +132,7 @@ const MovieDetails: React.FC = () => {
             console.error("Submit review error:", err);
         }
     };
+
 
     const averageRating = reviews.length
         ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
