@@ -11,16 +11,37 @@ const WatchedMovies: React.FC = () => {
         const token = localStorage.getItem("token");
 
         try {
-            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
+            const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            const json = await res.json();
-            const moviesFromApi = json.result as MovieCardProps[];
+            const jsonIds = await resIds.json();
+            const ids = jsonIds.result as string[];
 
-            setMovies(moviesFromApi);
+            const moviePromises = ids.map(id =>
+                fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        const movie = data.result as MovieCardProps;
+
+                        // Asigură-te că isRecommended e setat din backend sau fals dacă lipsește
+                        if (movie.isRecommended === undefined) {
+                            movie.isRecommended = false;
+                        }
+
+                        return movie;
+                    })
+            );
+
+            const movieData = await Promise.all(moviePromises);
+
+            setMovies(movieData);
         } catch (err) {
             console.error("Error loading watched movies:", err);
             alert("Error loading watched movies!");
