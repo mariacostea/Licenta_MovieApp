@@ -31,9 +31,6 @@ const MovieDetails: React.FC = () => {
     const [crew, setCrew] = useState<CrewMember[]>([]);
     const [reviewText, setReviewText] = useState("");
     const [reviewRating, setReviewRating] = useState(1);
-    const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
-    const [editingContent, setEditingContent] = useState("");
-    const [editingRating, setEditingRating] = useState(1);
     const [watchedIds, setWatchedIds] = useState<string[]>([]);
 
     const fetchReviews = async (title: string, year: number) => {
@@ -60,12 +57,20 @@ const MovieDetails: React.FC = () => {
         const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched`, {
             headers: { Authorization: `Bearer ${token}` },
         });
+
         const json = await res.json();
-        setWatchedIds(json.result ?? []);
+        console.log("Watched movies API response:", json);
+
+        const ids = Array.isArray(json.result)
+            ? json.result.map((m: any) => String(m.movieId).trim())
+            : [];
+
+        setWatchedIds(ids);
     };
 
     useEffect(() => {
         if (!id) return;
+
         fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/${id}`)
             .then(res => res.json())
             .then(json => {
@@ -74,6 +79,7 @@ const MovieDetails: React.FC = () => {
                     fetchReviews(json.result.title, json.result.year);
                 }
             });
+
         fetchWatched();
     }, [id]);
 
@@ -133,7 +139,6 @@ const MovieDetails: React.FC = () => {
         }
     };
 
-
     const averageRating = reviews.length
         ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
         : "N/A";
@@ -180,8 +185,20 @@ const MovieDetails: React.FC = () => {
             {!reviews.some(r => r.isOwnReview) && (
                 <>
                     <h4 className="mt-4">Add a Review</h4>
-                    <textarea className="form-control mb-2" value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write your review" />
-                    <input type="number" className="form-control mb-2" min={1} max={10} value={reviewRating} onChange={(e) => setReviewRating(parseInt(e.target.value))} />
+                    <textarea
+                        className="form-control mb-2"
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        placeholder="Write your review"
+                    />
+                    <input
+                        type="number"
+                        className="form-control mb-2"
+                        min={1}
+                        max={10}
+                        value={reviewRating}
+                        onChange={(e) => setReviewRating(parseInt(e.target.value))}
+                    />
                     <button
                         type="button"
                         className="btn btn-success"
