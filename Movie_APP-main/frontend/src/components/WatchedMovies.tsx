@@ -13,8 +13,8 @@ const WatchedMovies: React.FC = () => {
         try {
             const resIds = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
                 headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             const jsonIds = await resIds.json();
@@ -49,14 +49,17 @@ const WatchedMovies: React.FC = () => {
                 <h1>Watched Movies</h1>
 
                 {loading && <p>Loading...</p>}
-
                 {!loading && movies.length === 0 && <p>No watched movies found.</p>}
 
                 {!loading && (
                     <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                         {movies.map((m) => (
                             <div className="col" key={m.id}>
-                                <MovieCardWatched {...m} isRecommended={false} />
+                                <MovieCardWatched
+                                    {...m}
+                                    isRecommended={false}
+                                    showUnwatchButton={true}
+                                />
                             </div>
                         ))}
                     </div>
