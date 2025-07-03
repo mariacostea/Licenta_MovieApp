@@ -162,7 +162,7 @@ export default function People() {
                         <a href="/movies" className="btn btn-outline-light btn-sm">🎬 Movies</a>
                         <a href="/events" className="btn btn-outline-light btn-sm">📅 Events</a>
                         <a href="/feed" className="btn btn-outline-light btn-sm">📰 Feed</a>
-                        <a href="/people" className="btn btn-outline-light btn-sm">👥 People</a>
+                        <a href="/recommendation" className="btn btn-outline-light btn-sm">⭐ Recommendations</a>
                         <button
                             className="btn btn-outline-danger btn-sm"
                             onClick={() => {
