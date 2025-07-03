@@ -65,7 +65,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
         if (!token) return alert("You must be logged in.");
 
         try {
-            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/unrecommend", {
+            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/UnmarkAsRecommended/unrecommend", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

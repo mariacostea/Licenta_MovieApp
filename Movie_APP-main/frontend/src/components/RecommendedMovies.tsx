@@ -72,7 +72,6 @@ const RecommendedMovies: React.FC = () => {
     return (
         <>
             <NavigationBar onSearch={() => {}} />
-
             <div className="container py-4 text-white">
                 <h1>Recommended Movies</h1>
 
