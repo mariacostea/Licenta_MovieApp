@@ -114,7 +114,6 @@ export default function People() {
         }
     };
 
-
     const isKnown = (id: string) =>
         friends.some((u) => u.id === id) ||
         pendingSent.some((u) => u.id === id) ||
@@ -203,18 +202,6 @@ export default function People() {
                             <li>No received friend requests</li>
                         ))}
 
-                    {tab === "friends" &&
-                        (friends.length > 0 ? (
-                            friends.map((u) =>
-                                renderUser(u, (
-                                    <Link to={`/friend/${u.id}`} className="btn btn-sm btn-outline-light">
-                                        View Profile
-                                    </Link>
-                                ))
-                            )
-                        ) : (
-                            <li>No friends</li>
-                        ))}
                     {tab === "friends" &&
                         (friends.length > 0 ? (
                             friends.map((u) =>
