@@ -98,7 +98,7 @@ const Feed: React.FC = () => {
                 {tab === "watched" && (
                     <div className="row g-3">
                         {watched.map((item, index) => (
-                            <div className="col-6 col-sm-4 col-md-3" style={{ flex: '0 0 20%', maxWidth: '20%' }} key={index}>
+                            <div className="col-6 col-sm-4 col-md-3 col-lg-2" key={index}>
                                 <div className="card bg-dark text-white h-100 border-secondary">
                                     <img
                                         src={item.posterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
@@ -121,7 +121,7 @@ const Feed: React.FC = () => {
                 {tab === "reviews" && (
                     <div className="row g-3">
                         {reviews.map((item, index) => (
-                            <div className="col-6 col-sm-4 col-md-3" style={{ flex: '0 0 20%', maxWidth: '20%' }} key={index}>
+                            <div className="col-6 col-sm-4 col-md-3 col-lg-2" key={index}>
                                 <div className="card bg-dark text-white h-100 border-warning">
                                     <img
                                         src={item.posterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
@@ -146,7 +146,7 @@ const Feed: React.FC = () => {
                 {tab === "events" && (
                     <div className="row g-3">
                         {events.map((event) => (
-                            <div className="col-6 col-sm-4 col-md-3" style={{ flex: '0 0 20%', maxWidth: '20%' }} key={event.id}>
+                            <div className="col-6 col-sm-4 col-md-3 col-lg-2" key={event.id}>
                                 <div className="card h-100 bg-dark text-white border-secondary shadow">
                                     <img
                                         src={event.moviePosterUrl ?? "https://via.placeholder.com/300x450?text=No+Image"}
