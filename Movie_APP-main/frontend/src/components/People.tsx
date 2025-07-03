@@ -95,6 +95,26 @@ export default function People() {
         loadReceived();
     };
 
+    const unfriend = async (friendId: string) => {
+        if (!window.confirm("Are you sure you want to unfriend?")) return;
+
+        try {
+            const res = await fetch(`${API}/Friendship/unfriend/${friendId}`, {
+                method: "POST",
+                headers: auth,
+            });
+            if (!res.ok) {
+                throw new Error("Failed to unfriend.");
+            }
+            alert("Friendship removed.");
+            loadFriends();
+        } catch (err) {
+            console.error(err);
+            alert("Failed to unfriend.");
+        }
+    };
+
+
     const isKnown = (id: string) =>
         friends.some((u) => u.id === id) ||
         pendingSent.some((u) => u.id === id) ||
@@ -191,6 +211,27 @@ export default function People() {
                                         View Profile
                                     </Link>
                                 ))
+                            )
+                        ) : (
+                            <li>No friends</li>
+                        ))}
+                    {tab === "friends" &&
+                        (friends.length > 0 ? (
+                            friends.map((u) =>
+                                renderUser(
+                                    u,
+                                    <>
+                                        <button
+                                            className="btn btn-sm btn-outline-danger me-2"
+                                            onClick={() => unfriend(u.id)}
+                                        >
+                                            ❌ Remove Friend
+                                        </button>
+                                        <Link to={`/friend/${u.id}`} className="btn btn-sm btn-outline-light">
+                                            View Profile
+                                        </Link>
+                                    </>
+                                )
                             )
                         ) : (
                             <li>No friends</li>
