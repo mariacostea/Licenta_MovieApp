@@ -25,12 +25,30 @@ const Movies: React.FC = () => {
 
     const buildKey = (title: string, year: number) =>
         `${title.trim().toLowerCase()}-${year}`;
+    
+    const normalize = (title: string, year: number) =>
+        `${title.replace(/\s+/g, ' ').trim().toLowerCase()}-${year}`;
+
+    const fetchWatched = async (): Promise<Set<string>> => {
+        const token = localStorage.getItem("token");
+        if (!token) return new Set();
+
+        const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json().catch(() => ({ result: [] }));
+        const watchedList = json.result ?? [];
+
+        return new Set(
+            watchedList.map((m: any) => normalize(m.title, m.year))
+        );
+    };
 
     const mergeWithWatched = useCallback(
         (list: MovieCardProps[]) => {
             return list
                 .filter(m => {
-                    const key = buildKey(m.title, m.year? m.year : 0);
+                    const key = normalize(m.title, m.year? m.year : 0);
                     return !watchedIds.has(key);
                 })
                 .map(m => ({ ...m, isWatched: false }));
@@ -38,25 +56,6 @@ const Movies: React.FC = () => {
         [watchedIds]
     );
 
-    const fetchWatched = async (): Promise<Set<string>> => {
-        const token = localStorage.getItem("token");
-        if (!token) return new Set();
-
-        const res = await fetch(
-            "https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched",
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
-        );
-        const json = await res.json().catch(() => ({ result: [] }));
-        const watchedList = json.result ?? [];
-
-        return new Set(
-            watchedList.map(
-                (m: any) => `${m.title.trim().toLowerCase()}-${m.year}`
-            )
-        );
-    };
 
     const fetchPage = async (page: number, f: ActiveFilter = filter) => {
         const base =
