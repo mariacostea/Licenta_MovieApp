@@ -21,6 +21,32 @@ interface CrewMember {
     imageUrl?: string | null;
 }
 
+const StarRating: React.FC<{
+    rating: number;
+    onChange: (r: number) => void;
+}> = ({ rating, onChange }) => {
+    const [hover, setHover] = useState<number | null>(null);
+
+    return (
+        <div>
+            {[...Array(10)].map((_, i) => (
+                <span
+                    key={i}
+                    onClick={() => onChange(i + 1)}
+                    onMouseEnter={() => setHover(i + 1)}
+                    onMouseLeave={() => setHover(null)}
+                    className="star"
+                    style={{
+                        color: (hover ?? rating) > i ? "#ffc107" : "#e4e5e9",
+                    }}
+                >
+                    ★
+                </span>
+            ))}
+        </div>
+    );
+};
+
 const MovieDetails: React.FC = () => {
     const { id } = useParams();
     const userId = getUserIdFromToken();
@@ -37,7 +63,9 @@ const MovieDetails: React.FC = () => {
 
     const fetchReviews = async (title: string, year: number) => {
         try {
-            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/GetByMovieTitleAndYear?title=${encodeURIComponent(title)}&year=${year}`);
+            const res = await fetch(
+                `https://licenta-backend-nf1m.onrender.com/api/Review/GetByMovieTitleAndYear?title=${encodeURIComponent(title)}&year=${year}`
+            );
             const json = await res.json();
 
             const reviewsWithOwnership = json.result.map((r: Review) => {
@@ -87,11 +115,12 @@ const MovieDetails: React.FC = () => {
             alert("Rating must be between 1 and 10.");
             return;
         }
-        
+
         try {
-            const watchedRes = await fetch(`https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const watchedRes = await fetch(
+                `https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             const watchedJson = await watchedRes.json();
             const watchedIds = Array.isArray(watchedJson.result)
                 ? watchedJson.result.map((m: any) => String(m.id).trim())
@@ -102,18 +131,21 @@ const MovieDetails: React.FC = () => {
                 return;
             }
 
-            const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Add`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    movieId: movie.id,
-                    content: reviewText.trim(),
-                    rating: reviewRating,
-                }),
-            });
+            const res = await fetch(
+                `https://licenta-backend-nf1m.onrender.com/api/Review/Add`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        movieId: movie.id,
+                        content: reviewText.trim(),
+                        rating: reviewRating,
+                    }),
+                }
+            );
 
             if (res.ok) {
                 setReviewText("");
@@ -127,7 +159,6 @@ const MovieDetails: React.FC = () => {
             console.error("Submit review error:", err);
         }
     };
-
 
     const averageRating = reviews.length
         ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -175,17 +206,13 @@ const MovieDetails: React.FC = () => {
                                 value={editingContent}
                                 onChange={(e) => setEditingContent(e.target.value)}
                             />
-                            <input
-                                type="number"
-                                className="form-control mb-2"
-                                value={editingRating}
-                                min={1}
-                                max={10}
-                                onChange={(e) => setEditingRating(parseInt(e.target.value))}
+                            <StarRating
+                                rating={editingRating}
+                                onChange={setEditingRating}
                             />
                             <button
                                 type="button"
-                                className="btn btn-primary btn-sm me-2"
+                                className="btn btn-primary btn-sm me-2 mt-2"
                                 onClick={async () => {
                                     const token = localStorage.getItem("token");
                                     if (!token || !movie?.id) return;
@@ -199,14 +226,17 @@ const MovieDetails: React.FC = () => {
                                         author: rev.author,
                                     };
 
-                                    const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Update/${rev.id}`, {
-                                        method: "PUT",
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                            Authorization: `Bearer ${token}`,
-                                        },
-                                        body: JSON.stringify(updatedReview),
-                                    });
+                                    const res = await fetch(
+                                        `https://licenta-backend-nf1m.onrender.com/api/Review/Update/${rev.id}`,
+                                        {
+                                            method: "PUT",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                Authorization: `Bearer ${token}`,
+                                            },
+                                            body: JSON.stringify(updatedReview),
+                                        }
+                                    );
 
                                     if (res.ok) {
                                         setReviews(prev =>
@@ -220,7 +250,7 @@ const MovieDetails: React.FC = () => {
                             >Save</button>
                             <button
                                 type="button"
-                                className="btn btn-secondary btn-sm"
+                                className="btn btn-secondary btn-sm mt-2"
                                 onClick={() => setEditingReviewId(null)}
                             >Cancel</button>
                         </>
@@ -232,10 +262,7 @@ const MovieDetails: React.FC = () => {
                                     <button
                                         type="button"
                                         className="btn btn-warning btn-sm me-2"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            console.log("Modify clicked");
+                                        onClick={() => {
                                             setEditingReviewId(rev.id);
                                             setEditingContent(rev.content);
                                             setEditingRating(rev.rating);
@@ -247,10 +274,13 @@ const MovieDetails: React.FC = () => {
                                         onClick={async () => {
                                             const token = localStorage.getItem("token");
                                             if (!token) return;
-                                            await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Delete/${rev.id}`, {
-                                                method: "DELETE",
-                                                headers: { Authorization: `Bearer ${token}` },
-                                            });
+                                            await fetch(
+                                                `https://licenta-backend-nf1m.onrender.com/api/Review/Delete/${rev.id}`,
+                                                {
+                                                    method: "DELETE",
+                                                    headers: { Authorization: `Bearer ${token}` },
+                                                }
+                                            );
                                             if (movie?.title && movie.year != null) await fetchReviews(movie.title, movie.year);
                                         }}
                                     >Delete</button>
@@ -264,11 +294,19 @@ const MovieDetails: React.FC = () => {
             {!reviews.some(r => r.isOwnReview) && (
                 <>
                     <h4 className="mt-4">Add a Review</h4>
-                    <textarea className="form-control mb-2" value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write your review" />
-                    <input type="number" className="form-control mb-2" min={1} max={10} value={reviewRating} onChange={(e) => setReviewRating(parseInt(e.target.value))} />
+                    <textarea
+                        className="form-control mb-2"
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        placeholder="Write your review"
+                    />
+                    <StarRating
+                        rating={reviewRating}
+                        onChange={setReviewRating}
+                    />
                     <button
                         type="button"
-                        className="btn btn-success"
+                        className="btn btn-success mt-2"
                         onClick={handleSubmitReview}
                     >Add Review</button>
                 </>

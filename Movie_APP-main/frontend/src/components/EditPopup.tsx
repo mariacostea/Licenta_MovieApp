@@ -21,6 +21,35 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
     const minDate = new Date();
     minDate.setDate(minDate.getDate() + 2);
 
+    const handleSave = () => {
+        const participantsEnrolled = event.maxParticipants - event.freeSeats;
+
+        if (maxParticipants < participantsEnrolled) {
+            alert(
+                `Cannot set max participants to ${maxParticipants} because there are already ${participantsEnrolled} participants enrolled.`
+            );
+            return;
+        }
+
+        const now = new Date();
+        const minFutureDate = new Date(now);
+        minFutureDate.setDate(now.getDate() + 2);
+
+        if (date < minFutureDate) {
+            alert(`The event date must be at least 2 days in the future.`);
+            return;
+        }
+
+        onSave({
+            ...event,
+            title,
+            description,
+            location,
+            date: date.toISOString(),
+            maxParticipants,
+        });
+    };
+
     return (
         <div
             className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75"
@@ -88,33 +117,18 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                 </div>
 
                 <div style={{ zIndex: 2000 }}>
-                    <div style={{ zIndex: 2000 }}>
-                        <DatePicker
-                            selected={date}
-                            onChange={(date: Date | null) => date && setDate(date)}
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            timeIntervals={15}
-                            dateFormat="Pp"
-                            minDate={minDate}
-                            className="form-control mb-2"
-                            calendarClassName="custom-datepicker"
-                            popperPlacement="bottom-start"
-                            popperModifiers={[
-                                {
-                                    name: "preventOverflow",
-                                    enabled: true,
-                                    options: {
-                                        boundary: "viewport",
-                                    },
-                                } as any,
-                            ]}
-                            withPortal
-                        />
-
-
-                    </div>
-
+                    <DatePicker
+                        selected={date}
+                        onChange={(date: Date | null) => date && setDate(date)}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={15}
+                        dateFormat="Pp"
+                        minDate={minDate}
+                        className="form-control mb-2"
+                        calendarClassName="custom-datepicker"
+                        withPortal
+                    />
                 </div>
 
                 <input
@@ -129,19 +143,7 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                     <button className="btn btn-secondary" onClick={onClose}>
                         Cancel
                     </button>
-                    <button
-                        className="btn btn-primary"
-                        onClick={() =>
-                            onSave({
-                                ...event,
-                                title,
-                                description,
-                                location,
-                                date: date.toISOString(),
-                                maxParticipants,
-                            })
-                        }
-                    >
+                    <button className="btn btn-primary" onClick={handleSave}>
                         Save
                     </button>
                 </div>
