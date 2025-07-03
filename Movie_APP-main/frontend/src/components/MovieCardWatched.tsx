@@ -1,4 +1,4 @@
-﻿import React from "react";
+﻿import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface MovieCardProps {
@@ -29,6 +29,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                                                         onUnwatch,
                                                     }) => {
     const navigate = useNavigate();
+    const [recommended, setRecommended] = useState(isRecommended);
 
     const handleMarkAsRecommended = async () => {
         const token = localStorage.getItem("token");
@@ -53,6 +54,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                 throw new Error(errorMessage);
             }
 
+            setRecommended(true);
             onRecommended?.(id);
             alert("Movie successfully marked as recommended.");
         } catch (err) {
@@ -83,6 +85,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                 throw new Error(errorMessage);
             }
 
+            setRecommended(false);
             onUnrecommended?.(id);
             alert("Movie was removed from recommendations.");
         } catch (err) {
@@ -141,7 +144,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                         Details
                     </button>
 
-                    {!isRecommended && (
+                    {!recommended && (
                         <button
                             className="btn btn-outline-warning btn-sm"
                             onClick={handleMarkAsRecommended}
@@ -150,7 +153,7 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                         </button>
                     )}
 
-                    {isRecommended && (
+                    {recommended && (
                         <button
                             className="btn btn-outline-danger btn-sm"
                             onClick={handleUnrecommend}
