@@ -194,8 +194,7 @@ public class UserController : AuthorizedController
         var currentUser = await GetCurrentUser();
         if (currentUser.Result == null)
             return Unauthorized("User not found.");
-
-        // Upload în Cloudinary
+        
         var cloudUrl = await _cloudinaryService.UploadImageAsync(file);
         if (string.IsNullOrEmpty(cloudUrl))
             return StatusCode(500, "Image upload failed.");

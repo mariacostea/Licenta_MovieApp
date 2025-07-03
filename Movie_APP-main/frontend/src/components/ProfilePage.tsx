@@ -17,8 +17,7 @@ const ProfilePage: React.FC = () => {
         if (!userId || !token) return;
 
         const auth = { Authorization: `Bearer ${token}` };
-
-        // Get user data
+        
         fetch(`${API}/User/GetById/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {
@@ -27,8 +26,7 @@ const ProfilePage: React.FC = () => {
                 setEmail(user.email);
                 setProfilePictureUrl(user.profilePictureUrl);
             });
-
-        // Get movie stats
+        
         fetch(`${API}/User/Count/${userId}`, { headers: auth })
             .then(res => res.json())
             .then(data => {

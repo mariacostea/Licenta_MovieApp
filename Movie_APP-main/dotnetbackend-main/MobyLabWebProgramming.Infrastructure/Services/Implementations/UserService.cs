@@ -266,8 +266,7 @@ public class UserService(
 
         var watched = await repository.ListAsync(new WatchedMoviesByUserSpec(userId), cancellationToken);
         var recommended = await repository.ListAsync(new RecommendedMoviesByUserSpec(userId), cancellationToken);
-
-        // Folosim EventDTO direct
+        
         var events = await repository.ListAsync(new EventProjectionSpec(userId, "Organizer"), cancellationToken);
 
         var dto = new UserExtendedProfileDTO

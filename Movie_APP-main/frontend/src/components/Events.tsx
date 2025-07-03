@@ -213,12 +213,11 @@ const EventsPage: React.FC = () => {
                 ) : events.length === 0 ? (
                     <p className="text-muted">No events found.</p>
                 ) : (
-                    <div className="row g-4">
+                    <div className="row g-3">
                         {events.map((event) => (
                             <div
                                 key={event.id}
-                                className="col-6 col-sm-4 col-md-3"
-                                style={{ flex: "0 0 20%", maxWidth: "20%" }}
+                                className="col-6 col-sm-4 col-md-3 col-lg-2"
                             >
                                 <div className="card h-100 bg-dark text-white border-secondary shadow">
                                     <img
