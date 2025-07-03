@@ -40,15 +40,12 @@ const Movies: React.FC = () => {
             headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json().catch(() => ({ result: [] }));
-        
-        const ids = Array.isArray(json.result)
-            ? json.result.map((m: any) => m.id)
-            : [];
-
-        return ids;
+        const watchedList = json.result ?? [];
+        return watchedList.map((m: any) => m.id);
     };
 
-    
+
+
     const fetchPage = async (page: number, f: ActiveFilter = filter) => {
         const base =
             f && (f.year || f.genre)
