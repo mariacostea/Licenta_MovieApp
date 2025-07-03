@@ -94,7 +94,7 @@ const MovieDetails: React.FC = () => {
             });
             const watchedJson = await watchedRes.json();
             const watchedIds = Array.isArray(watchedJson.result)
-                ? watchedJson.result.map((m: any) => String(m.movieId).trim())
+                ? watchedJson.result.map((m: any) => String(m.id).trim())
                 : [];
 
             if (!watchedIds.includes(movie.id)) {
