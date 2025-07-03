@@ -28,28 +28,25 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
         >
             <div
                 className="bg-white text-dark p-3 rounded position-relative"
-                style={{
-                    width: "fit-content",
-                    maxWidth: 400,
-                    overflow: "visible",
-                }}
+                style={{ width: "fit-content", maxWidth: 400, overflow: "visible" }}
             >
                 <h5 className="mb-3">Edit Event</h5>
+
                 <input
                     className="form-control mb-2"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={e => setTitle(e.target.value)}
                     placeholder="Title"
                 />
+
                 <textarea
                     className="form-control mb-2"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={e => setDescription(e.target.value)}
                     placeholder="Description"
                 />
-                <p className="mb-2">
-                    <strong>🎮 Movie:</strong> {event.movieTitle ?? "Unknown"}
-                </p>
+
+                <p className="mb-2"><strong>🎮 Movie:</strong> {event.movieTitle ?? "Unknown"}</p>
 
                 <div style={{ position: "relative" }}>
                     <input
@@ -62,19 +59,7 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                     />
 
                     {showMap && (
-                        <div
-                            style={{
-                                position: "fixed",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
-                                zIndex: 2000,
-                                background: "white",
-                                padding: "1rem",
-                                borderRadius: "0.5rem",
-                                boxShadow: "0 0 10px rgba(0,0,0,0.5)",
-                            }}
-                        >
+                        <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1060 }}>
                             <MapPopup
                                 anchorRef={locationRef}
                                 onClose={() => setShowMap(false)}
@@ -87,34 +72,30 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                     )}
                 </div>
 
-                <div style={{ zIndex: 2000 }}>
-                    <DatePicker
-                        selected={date}
-                        onChange={(date: Date | null) => date && setDate(date)}
-                        showTimeSelect
-                        timeFormat="HH:mm"
-                        timeIntervals={15}
-                        dateFormat="Pp"
-                        minDate={minDate}
-                        className="form-control mb-2"
-                        calendarClassName="high-z-index-datepicker"
-                        popperPlacement="bottom-start"
-                        popperContainer={({ children }) => <div style={{ zIndex: 3000, position: 'relative' }}>{children}</div>}
-                    />
-                </div>
+                <DatePicker
+                    selected={date}
+                    onChange={(date: Date | null) => date && setDate(date)}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    dateFormat="Pp"
+                    minDate={minDate}
+                    className="form-control mb-2"
+                    popperContainer={({ children }) => (
+                        <div style={{ zIndex: 9999, position: "absolute" }}>{children}</div>
+                    )}
+                />
 
                 <input
                     type="number"
                     className="form-control mb-3"
                     value={maxParticipants}
-                    onChange={(e) => setMaxParticipants(Math.max(1, Number(e.target.value)))}
+                    onChange={e => setMaxParticipants(Math.max(1, Number(e.target.value)))}
                     min={1}
                 />
 
                 <div className="d-flex justify-content-between">
-                    <button className="btn btn-secondary" onClick={onClose}>
-                        Cancel
-                    </button>
+                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
                     <button
                         className="btn btn-primary"
                         onClick={() =>
