@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
 import EditPopup from "./EditPopup";
-import NavigationBar from "./NavigationBar";
 
 interface Event {
     id: string;
@@ -143,32 +142,68 @@ const EventsPage: React.FC = () => {
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#111", color: "white" }}>
-            <NavigationBar onSearch={(q) => console.log("Search: ", q)} />
+            <div
+                className="bg-dark py-3 border-bottom shadow"
+                style={{
+                    position: "sticky",
+                    top: 0,
+                    width: "100%",
+                    zIndex: 1050,
+                }}
+            >
+                <div className="d-flex justify-content-between align-items-center flex-wrap px-4">
+                    <div className="d-flex flex-wrap gap-3">
+                        <a href="/movies" className="btn btn-outline-light btn-sm">
+                            🎬 Movies
+                        </a>
+                        <a href="/recommendation" className="btn btn-outline-light btn-sm">
+                            ⭐ Recommendations
+                        </a>
+                        <a href="/feed" className="btn btn-outline-light btn-sm">
+                            📰 Feed
+                        </a>
+                        <a href="/people" className="btn btn-outline-light btn-sm">
+                            👥 People
+                        </a>
+                        <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => {
+                                localStorage.removeItem("token");
+                                localStorage.removeItem("userId");
+                                window.location.href = "/login";
+                            }}
+                        >
+                            🚪 Logout
+                        </button>
+                    </div>
+                    <a href="/profile" className="btn btn-secondary btn-sm">
+                        Profile
+                    </a>
+                </div>
+            </div>
 
             <div className="container py-3">
                 <h2 className="mb-3">🗓️ Events</h2>
 
-                <div className="d-flex flex-wrap gap-2 mb-4">
-                    <div className="btn-group">
-                        <button
-                            className={`btn btn-outline-primary ${view === "all" ? "active" : ""}`}
-                            onClick={() => setView("all")}
-                        >
-                            All Events
-                        </button>
-                        <button
-                            className={`btn btn-outline-success ${view === "my" ? "active" : ""}`}
-                            onClick={() => setView("my")}
-                        >
-                            My Events
-                        </button>
-                        <button
-                            className={`btn btn-outline-info ${view === "participation" ? "active" : ""}`}
-                            onClick={() => setView("participation")}
-                        >
-                            Participation Events
-                        </button>
-                    </div>
+                <div className="btn-group mb-4">
+                    <button
+                        className={`btn btn-outline-primary ${view === "all" ? "active" : ""}`}
+                        onClick={() => setView("all")}
+                    >
+                        All Events
+                    </button>
+                    <button
+                        className={`btn btn-outline-success ${view === "my" ? "active" : ""}`}
+                        onClick={() => setView("my")}
+                    >
+                        My Events
+                    </button>
+                    <button
+                        className={`btn btn-outline-info ${view === "participation" ? "active" : ""}`}
+                        onClick={() => setView("participation")}
+                    >
+                        Participation Events
+                    </button>
                 </div>
 
                 {loading ? (
@@ -198,8 +233,7 @@ const EventsPage: React.FC = () => {
                                     <div className="card-body">
                                         <h5 className="card-title">{event.title}</h5>
                                         <p className="card-text">
-                                            <strong>🎮 Movie:</strong>{" "}
-                                            {event.movieTitle ?? "Unknown"}
+                                            <strong>🎮 Movie:</strong> {event.movieTitle ?? "Unknown"}
                                         </p>
                                         <p className="card-text">{event.description}</p>
                                         <p className="card-text">
