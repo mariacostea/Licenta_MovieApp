@@ -10,12 +10,19 @@ export interface MovieCardProps {
     posterUrl?: string;
     isRecommended?: boolean;
     onRecommended?: (id: string) => void;
+    onUnrecommended?: () => void;
 }
 
 const MovieCardWatched: React.FC<MovieCardProps> = ({
-                                                        id, title, year, averageRating, genres, posterUrl,
+                                                        id,
+                                                        title,
+                                                        year,
+                                                        averageRating,
+                                                        genres,
+                                                        posterUrl,
                                                         isRecommended: initialIsRecommended,
-                                                        onRecommended
+                                                        onRecommended,
+                                                        onUnrecommended,
                                                     }) => {
     const navigate = useNavigate();
     const [isRecommended, setIsRecommended] = useState(initialIsRecommended ?? false);
@@ -60,15 +67,31 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                 <p className="card-text mb-1">{year ?? "—"} • {genres.join(", ")}</p>
                 <p className="card-text">⭐ {averageRating.toFixed(1)}</p>
 
-                <div className="d-flex gap-2 mt-2">
-                    <button className="btn btn-outline-info btn-sm" onClick={() => navigate(`/movies/${id}`)}>Details</button>
+                <div className="d-flex gap-2 mt-2 flex-wrap">
                     <button
-                        className={`btn btn-sm ${isRecommended ? "btn-success" : "btn-outline-warning"}`}
-                        onClick={markAsRecommended}
-                        disabled={isRecommended}
+                        className="btn btn-outline-info btn-sm"
+                        onClick={() => navigate(`/movies/${id}`)}
                     >
-                        {isRecommended ? "Recommended" : "Mark as Recommended"}
+                        Details
                     </button>
+
+                    {!isRecommended && (
+                        <button
+                            className="btn btn-outline-warning btn-sm"
+                            onClick={markAsRecommended}
+                        >
+                            Mark as Recommended
+                        </button>
+                    )}
+
+                    {isRecommended && onUnrecommended && (
+                        <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={onUnrecommended}
+                        >
+                            Unrecommend
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
