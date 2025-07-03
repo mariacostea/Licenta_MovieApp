@@ -34,7 +34,7 @@ const WatchedMovies: React.FC = () => {
                 id: m.id,
                 title: m.title,
                 year: m.year,
-                averageRating: m.averageRating ?? 0,
+                averageRating: m.averageRating,
                 genres: m.genres ?? [],
                 posterUrl: m.posterUrl,
                 isRecommended: m.isRecommended ?? false,
