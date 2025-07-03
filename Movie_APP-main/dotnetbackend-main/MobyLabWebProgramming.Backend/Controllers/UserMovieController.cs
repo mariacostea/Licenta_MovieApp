@@ -77,13 +77,27 @@ public class UserMovieController : ControllerBase
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        var watchedMovieIds = await _userMovieRepo.GetAsQueryable<UserMovie>()
+        var watchedMovies = await _userMovieRepo.GetAsQueryable<UserMovie>()
             .Where(um => um.UserId == userId && um.IsWatched)
-            .Select(um => um.MovieId)
+            .Include(um => um.Movie)
+            .ThenInclude(m => m.MovieGenres)
+            .ThenInclude(mg => mg.Genre)
+            .Select(um => new
+            {
+                Id = um.Movie.Id.ToString(),
+                Title = um.Movie.Title,
+                Year = um.Movie.Year,
+                Genres = um.Movie.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
+                PosterUrl = um.Movie.PosterUrl,
+                IsWatched = um.IsWatched,
+                IsRecommended = um.IsRecommended
+            })
             .ToListAsync();
 
-        return Ok(ServiceResponse.ForSuccess(watchedMovieIds));
+        return Ok(ServiceResponse.ForSuccess(watchedMovies));
     }
+
+
 
     [HttpPost("recommend")]
     [Authorize]
