@@ -24,4 +24,6 @@ public interface IFriendshipService
     Task<ServiceResponse<List<UserDTO>>> GetFriendsAsync(Guid userId, CancellationToken ct = default);
     Task<ServiceResponse<List<UserDTO>>> GetPendingSentUsersAsync(Guid userId, CancellationToken ct = default);
     Task<ServiceResponse<List<UserDTO>>> GetPendingReceivedUsersAsync(Guid userId, CancellationToken ct = default);
+    Task<ServiceResponse> UnfriendAsync(Guid userId, Guid friendId, CancellationToken ct);
+
 }

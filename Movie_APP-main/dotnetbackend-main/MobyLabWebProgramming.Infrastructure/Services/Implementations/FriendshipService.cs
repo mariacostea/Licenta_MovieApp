@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Microsoft.EntityFrameworkCore;
 using MobyLabWebProgramming.Core.DataTransferObjects;
 using MobyLabWebProgramming.Core.Entities;
 using MobyLabWebProgramming.Core.Errors;
@@ -139,4 +140,29 @@ public class FriendshipService : IFriendshipService
 
         return ServiceResponse<List<UserDTO>>.ForSuccess(result);
     }
+    
+    public async Task<ServiceResponse> UnfriendAsync(Guid userId, Guid friendId, CancellationToken ct)
+    {
+        var friendship = await _repo.GetAsQueryable<Friendship>()
+            .Where(f =>
+                (f.RequesterId == userId && f.AddresseeId == friendId ||
+                 f.RequesterId == friendId && f.AddresseeId == userId) &&
+                f.Status == FriendshipStatus.Accepted)
+            .FirstOrDefaultAsync(ct);
+
+        if (friendship is null)
+        {
+            return ServiceResponse.FromError(new ErrorMessage(
+                System.Net.HttpStatusCode.NotFound,
+                "Friendship does not exist or is not accepted.",
+                ErrorCodes.EntityNotFound
+            ));
+        }
+
+        await _repo.DeleteAsync<Friendship>(friendship.Id, ct);
+
+        return ServiceResponse.ForSuccess("Friendship removed.");
+    }
+
+
 }

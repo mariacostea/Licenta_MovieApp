@@ -98,4 +98,16 @@ public class FriendshipController(IFriendshipService friendshipService) : Contro
         var result = await friendshipService.GetFriendsAsync(userId, HttpContext.RequestAborted);
         return this.FromServiceResponse(result);
     }
+    
+    [HttpPost("unfriend/{friendId:guid}")]
+    public async Task<IActionResult> Unfriend([FromRoute] Guid friendId)
+    {
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null)
+            return BadRequest("User not logged in!");
+
+        var result = await friendshipService.UnfriendAsync(Guid.Parse(userId), friendId, HttpContext.RequestAborted);
+        return this.FromServiceResponse(result);
+    }
+
 }
