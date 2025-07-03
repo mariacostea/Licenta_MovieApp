@@ -31,17 +31,23 @@ const Movies: React.FC = () => {
         [watchedIds]
     );
 
-    
+
     const fetchWatched = async (): Promise<string[]> => {
         const token = localStorage.getItem("token");
         if (!token) return [];
 
-        const res  = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
+        const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched", {
             headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json().catch(() => ({ result: [] }));
-        return json.result ?? [];
+        
+        const ids = Array.isArray(json.result)
+            ? json.result.map((m: any) => m.id)
+            : [];
+
+        return ids;
     };
+
     
     const fetchPage = async (page: number, f: ActiveFilter = filter) => {
         const base =
