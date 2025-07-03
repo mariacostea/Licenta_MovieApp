@@ -31,7 +31,9 @@ const MovieDetails: React.FC = () => {
     const [crew, setCrew] = useState<CrewMember[]>([]);
     const [reviewText, setReviewText] = useState("");
     const [reviewRating, setReviewRating] = useState(1);
-    const [watchedIds, setWatchedIds] = useState<string[]>([]);
+    const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+    const [editingContent, setEditingContent] = useState("");
+    const [editingRating, setEditingRating] = useState(1);
 
     const fetchReviews = async (title: string, year: number) => {
         try {
@@ -50,27 +52,8 @@ const MovieDetails: React.FC = () => {
         }
     };
 
-    const fetchWatched = async () => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const json = await res.json();
-        console.log("Watched movies API response:", json);
-
-        const ids = Array.isArray(json.result)
-            ? json.result.map((m: any) => String(m.movieId).trim())
-            : [];
-
-        setWatchedIds(ids);
-    };
-
     useEffect(() => {
         if (!id) return;
-
         fetch(`https://licenta-backend-nf1m.onrender.com/api/movie/${id}`)
             .then(res => res.json())
             .then(json => {
@@ -79,8 +62,6 @@ const MovieDetails: React.FC = () => {
                     fetchReviews(json.result.title, json.result.year);
                 }
             });
-
-        fetchWatched();
     }, [id]);
 
     useEffect(() => {
@@ -102,17 +83,25 @@ const MovieDetails: React.FC = () => {
             return;
         }
 
-        if (!watchedIds.includes(movie.id)) {
-            alert("You must mark this movie as watched before leaving a review.");
-            return;
-        }
-
         if (reviewRating < 1 || reviewRating > 10) {
             alert("Rating must be between 1 and 10.");
             return;
         }
-
+        
         try {
+            const watchedRes = await fetch(`https://licenta-backend-nf1m.onrender.com/api/UserMovie/GetWatchedMovies/watched`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const watchedJson = await watchedRes.json();
+            const watchedIds = Array.isArray(watchedJson.result)
+                ? watchedJson.result.map((m: any) => String(m.movieId).trim())
+                : [];
+
+            if (!watchedIds.includes(movie.id)) {
+                alert("You must mark this movie as watched before leaving a review.");
+                return;
+            }
+
             const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Add`, {
                 method: "POST",
                 headers: {
@@ -138,6 +127,7 @@ const MovieDetails: React.FC = () => {
             console.error("Submit review error:", err);
         }
     };
+
 
     const averageRating = reviews.length
         ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -178,27 +168,104 @@ const MovieDetails: React.FC = () => {
             {reviews.length === 0 ? <p>No reviews yet.</p> : reviews.map((rev) => (
                 <div key={rev.id} className="mb-3">
                     <p><strong>{rev.isOwnReview ? "You" : rev.author || "Unknown"}</strong></p>
-                    <strong>⭐ {rev.rating}</strong> – {rev.content}
+                    {editingReviewId === rev.id ? (
+                        <>
+                            <textarea
+                                className="form-control mb-2"
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                className="form-control mb-2"
+                                value={editingRating}
+                                min={1}
+                                max={10}
+                                onChange={(e) => setEditingRating(parseInt(e.target.value))}
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-primary btn-sm me-2"
+                                onClick={async () => {
+                                    const token = localStorage.getItem("token");
+                                    if (!token || !movie?.id) return;
+
+                                    const updatedReview = {
+                                        id: rev.id,
+                                        content: editingContent.trim(),
+                                        rating: editingRating,
+                                        movieId: movie.id,
+                                        userId: rev.userId,
+                                        author: rev.author,
+                                    };
+
+                                    const res = await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Update/${rev.id}`, {
+                                        method: "PUT",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            Authorization: `Bearer ${token}`,
+                                        },
+                                        body: JSON.stringify(updatedReview),
+                                    });
+
+                                    if (res.ok) {
+                                        setReviews(prev =>
+                                            prev.map(r => r.id === rev.id ? { ...r, ...updatedReview } : r)
+                                        );
+                                        setEditingReviewId(null);
+                                    } else {
+                                        console.error("Failed to update review");
+                                    }
+                                }}
+                            >Save</button>
+                            <button
+                                type="button"
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setEditingReviewId(null)}
+                            >Cancel</button>
+                        </>
+                    ) : (
+                        <>
+                            <strong>⭐ {rev.rating}</strong> – {rev.content}
+                            {rev.isOwnReview && (
+                                <div className="mt-1">
+                                    <button
+                                        type="button"
+                                        className="btn btn-warning btn-sm me-2"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            console.log("Modify clicked");
+                                            setEditingReviewId(rev.id);
+                                            setEditingContent(rev.content);
+                                            setEditingRating(rev.rating);
+                                        }}
+                                    >Edit</button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger btn-sm"
+                                        onClick={async () => {
+                                            const token = localStorage.getItem("token");
+                                            if (!token) return;
+                                            await fetch(`https://licenta-backend-nf1m.onrender.com/api/Review/Delete/${rev.id}`, {
+                                                method: "DELETE",
+                                                headers: { Authorization: `Bearer ${token}` },
+                                            });
+                                            if (movie?.title && movie.year != null) await fetchReviews(movie.title, movie.year);
+                                        }}
+                                    >Delete</button>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             ))}
 
             {!reviews.some(r => r.isOwnReview) && (
                 <>
                     <h4 className="mt-4">Add a Review</h4>
-                    <textarea
-                        className="form-control mb-2"
-                        value={reviewText}
-                        onChange={(e) => setReviewText(e.target.value)}
-                        placeholder="Write your review"
-                    />
-                    <input
-                        type="number"
-                        className="form-control mb-2"
-                        min={1}
-                        max={10}
-                        value={reviewRating}
-                        onChange={(e) => setReviewRating(parseInt(e.target.value))}
-                    />
+                    <textarea className="form-control mb-2" value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write your review" />
+                    <input type="number" className="form-control mb-2" min={1} max={10} value={reviewRating} onChange={(e) => setReviewRating(parseInt(e.target.value))} />
                     <button
                         type="button"
                         className="btn btn-success"
