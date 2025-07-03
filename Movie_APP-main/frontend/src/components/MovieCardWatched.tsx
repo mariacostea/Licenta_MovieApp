@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface MovieCardProps {
@@ -10,7 +10,9 @@ export interface MovieCardProps {
     posterUrl?: string;
     isRecommended?: boolean;
     onRecommended?: (id: string) => void;
-    onUnrecommended?: () => void;
+    onUnrecommended?: (id: string) => void;
+    showUnwatchButton?: boolean;
+    onUnwatch?: (id: string) => void;
 }
 
 const MovieCardWatched: React.FC<MovieCardProps> = ({
@@ -20,14 +22,15 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                                                         averageRating,
                                                         genres,
                                                         posterUrl,
-                                                        isRecommended: initialIsRecommended,
+                                                        isRecommended = false,
                                                         onRecommended,
                                                         onUnrecommended,
+                                                        showUnwatchButton = false,
+                                                        onUnwatch,
                                                     }) => {
     const navigate = useNavigate();
-    const [isRecommended, setIsRecommended] = useState(initialIsRecommended ?? false);
 
-    const markAsRecommended = async () => {
+    const handleMarkAsRecommended = async () => {
         const token = localStorage.getItem("token");
         if (!token) return alert("You must be logged in.");
 
@@ -46,9 +49,60 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                 throw new Error(data?.error?.message || "Error marking movie as recommended.");
             }
 
-            setIsRecommended(true);
             onRecommended?.(id);
             alert("Movie successfully marked as recommended.");
+        } catch (err) {
+            alert((err as Error).message);
+        }
+    };
+
+    const handleUnrecommend = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return alert("You must be logged in.");
+
+        try {
+            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/unrecommend", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ title, year }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data?.error?.message || "Failed to unrecommend movie.");
+            }
+
+            onUnrecommended?.(id);
+            alert("Movie was removed from recommendations.");
+        } catch (err) {
+            alert((err as Error).message);
+        }
+    };
+
+    const handleUnwatch = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return alert("You must be logged in.");
+
+        try {
+            const res = await fetch("https://licenta-backend-nf1m.onrender.com/api/UserMovie/unmarkaswatched", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ title, year }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data?.error?.message || "Failed to unmark movie as watched.");
+            }
+
+            onUnwatch?.(id);
+            alert("Movie was unmarked as watched.");
         } catch (err) {
             alert((err as Error).message);
         }
@@ -78,18 +132,27 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
                     {!isRecommended && (
                         <button
                             className="btn btn-outline-warning btn-sm"
-                            onClick={markAsRecommended}
+                            onClick={handleMarkAsRecommended}
                         >
                             Mark as Recommended
                         </button>
                     )}
 
-                    {isRecommended && onUnrecommended && (
+                    {isRecommended && (
                         <button
                             className="btn btn-outline-danger btn-sm"
-                            onClick={onUnrecommended}
+                            onClick={handleUnrecommend}
                         >
                             Unrecommend
+                        </button>
+                    )}
+
+                    {showUnwatchButton && (
+                        <button
+                            className="btn btn-outline-secondary btn-sm"
+                            onClick={handleUnwatch}
+                        >
+                            Unwatch
                         </button>
                     )}
                 </div>
