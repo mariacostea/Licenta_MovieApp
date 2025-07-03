@@ -99,11 +99,20 @@ const EditPopup: React.FC<EditPopupProps> = ({ event, onClose, onSave }) => {
                             minDate={minDate}
                             className="form-control mb-2"
                             calendarClassName="custom-datepicker"
-                            popperPlacement="right-start"
-                            popperContainer={({ children }) => (
-                                <div style={{ zIndex: 3000, position: 'relative' }}>{children}</div>
-                            )}
+                            popperPlacement="bottom-start"
+                            popperModifiers={[
+                                {
+                                    name: "preventOverflow",
+                                    enabled: true,
+                                    options: {
+                                        boundary: "viewport",
+                                    },
+                                } as any,
+                            ]}
+                            withPortal
                         />
+
+
                     </div>
 
                 </div>
