@@ -94,7 +94,14 @@ const Recommendation: React.FC = () => {
 
                 <div className="row g-3">
                     {movies.map((movie) => (
-                        <div className="col-6 col-sm-4 col-md-3 col-lg-2" key={movie.id}>
+                        <div
+                            key={movie.id}
+                            className="col-6 col-sm-4 col-md-3"
+                            style={{
+                                flex: '0 0 20%',
+                                maxWidth: '20%',
+                            }}
+                        >
                             <MovieCard {...movie} />
                         </div>
                     ))}
