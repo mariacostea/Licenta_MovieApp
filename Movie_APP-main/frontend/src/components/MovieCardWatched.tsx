@@ -45,8 +45,12 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
             });
 
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data?.error?.message || "Error marking movie as recommended.");
+                let errorMessage = "Error marking movie as recommended.";
+                try {
+                    const data = await res.json();
+                    errorMessage = data?.error?.message || errorMessage;
+                } catch {}
+                throw new Error(errorMessage);
             }
 
             onRecommended?.(id);
@@ -71,8 +75,12 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
             });
 
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data?.error?.message || "Failed to unrecommend movie.");
+                let errorMessage = "Failed to unrecommend movie.";
+                try {
+                    const data = await res.json();
+                    errorMessage = data?.error?.message || errorMessage;
+                } catch {}
+                throw new Error(errorMessage);
             }
 
             onUnrecommended?.(id);
@@ -97,8 +105,12 @@ const MovieCardWatched: React.FC<MovieCardProps> = ({
             });
 
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data?.error?.message || "Failed to unmark movie as watched.");
+                let errorMessage = "Failed to unmark movie as watched.";
+                try {
+                    const data = await res.json();
+                    errorMessage = data?.error?.message || errorMessage;
+                } catch {}
+                throw new Error(errorMessage);
             }
 
             onUnwatch?.(id);

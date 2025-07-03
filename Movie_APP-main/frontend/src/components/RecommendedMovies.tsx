@@ -28,8 +28,7 @@ const RecommendedMovies: React.FC = () => {
 
             const movieData = await Promise.all(moviePromises);
             setMovies(movieData);
-        } catch (err) {
-            console.error("Error loading recommended movies:", err);
+        } catch {
             alert("Error loading recommended movies!");
         } finally {
             setLoading(false);
@@ -51,8 +50,12 @@ const RecommendedMovies: React.FC = () => {
             });
 
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data?.error?.message || "Failed to unrecommend movie.");
+                let errorMessage = "Failed to unrecommend movie.";
+                try {
+                    const data = await res.json();
+                    errorMessage = data?.error?.message || errorMessage;
+                } catch {}
+                throw new Error(errorMessage);
             }
 
             setMovies(prev => prev.filter(m => m.id !== movie.id));
